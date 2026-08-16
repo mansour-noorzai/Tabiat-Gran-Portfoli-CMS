@@ -1,0 +1,1 @@
+import{redirect}from"next/navigation";import{requirePagePermission}from"@/lib/auth";import MessagesManager from"@/components/MessagesManager";export default async function Page(){if(!await requirePagePermission("messages.read"))redirect("/admin");return <MessagesManager/>}

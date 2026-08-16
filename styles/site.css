@@ -1,0 +1,128 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap");
+@import "tailwindcss";
+@source "../site";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", "Vazirmatn", ui-serif, Georgia, serif;
+  --font-rtl: "Vazirmatn", "Inter", sans-serif;
+
+  --color-leaf-50: #f2f8f0;
+  --color-leaf-100: #e0efe0;
+  --color-leaf-200: #c2dfc3;
+  --color-leaf-300: #96c79a;
+  --color-leaf-400: #67ab70;
+  --color-leaf-500: #448f52;
+  --color-leaf-600: #327240;
+  --color-leaf-700: #295b37;
+  --color-leaf-800: #24492f;
+  --color-leaf-900: #1e3c29;
+  --color-leaf-950: #0d2115;
+
+  --color-earthy-50: #faf7f0;
+  --color-earthy-100: #f3ece0;
+  --color-earthy-200: #e6d8c2;
+  --color-earthy-300: #d5bd99;
+  --color-earthy-400: #c29d6f;
+  --color-earthy-500: #b08456;
+  --color-earthy-600: #9a6d48;
+  --color-earthy-700: #80563f;
+  --color-earthy-800: #694837;
+  --color-earthy-900: #573c30;
+
+  --color-sand-100: #fbf7ef;
+  --color-sand-200: #f3ead8;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-sand-100 font-sans text-slate-800 antialiased;
+}
+
+.dark body {
+  @apply bg-[#0b1310] font-sans text-slate-200;
+}
+
+/* RTL typography */
+.dark body,
+.dark input,
+.dark textarea,
+.dark button {
+  font-family: var(--font-sans);
+}
+
+[dir="rtl"] body,
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] button {
+  font-family: "Vazirmatn", "Inter", sans-serif;
+}
+
+::selection {
+  background: #448f52;
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #448f5255;
+  border-radius: 9999px;
+}
+
+/* font feature for serif */
+.font-display {
+  font-optical-sizing: auto;
+  letter-spacing: -0.01em;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-up {
+  animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes scrollX {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: scrollX 34s linear infinite;
+}
+.marquee-wrap:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+@keyframes grow {
+  from {
+    opacity: 0;
+    transform: scaleX(0.4);
+    transform-origin: left;
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}

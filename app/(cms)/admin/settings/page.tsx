@@ -1,0 +1,1 @@
+import{redirect}from"next/navigation";import{requirePagePermission}from"@/lib/auth";import SettingsManager from"@/components/SettingsManager";export default async function Page(){if(!await requirePagePermission("settings.read"))redirect("/admin");return <SettingsManager/>}

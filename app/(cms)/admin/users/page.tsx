@@ -1,0 +1,1 @@
+import{redirect}from"next/navigation";import{requirePagePermission}from"@/lib/auth";import UsersManager from"@/components/UsersManager";export default async function Page(){if(!await requirePagePermission("users.read"))redirect("/admin");return <UsersManager/>}

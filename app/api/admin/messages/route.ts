@@ -1,0 +1,2 @@
+import { NextRequest,NextResponse } from "next/server";import { requirePermission } from "@/lib/auth";import { connectDb } from "@/lib/db";import { ContactMessage } from "@/models";
+export async function GET(req:NextRequest){const auth=await requirePermission("messages.read");if(!auth.ok)return auth.response;await connectDb();const status=req.nextUrl.searchParams.get("status"),filter=status&&status!=="all"?{status}:{};return NextResponse.json({items:await ContactMessage.find(filter).sort({createdAt:-1}).limit(200).lean()})}

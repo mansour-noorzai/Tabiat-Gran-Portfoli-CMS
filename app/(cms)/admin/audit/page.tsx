@@ -1,0 +1,1 @@
+import{redirect}from"next/navigation";import{requirePagePermission}from"@/lib/auth";import AuditManager from"@/components/AuditManager";export default async function Page(){if(!await requirePagePermission("audit.read"))redirect("/admin");return <AuditManager/>}
