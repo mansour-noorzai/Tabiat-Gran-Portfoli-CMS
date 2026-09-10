@@ -2,6 +2,8 @@
 
 A single full-stack Next.js application containing the public Tabiat Gran website, CMS/admin panel, API routes, MongoDB persistence and Cloudinary media management.
 
+**Live website:** [https://tabiatgran.vercel.app](https://tabiatgran.vercel.app)
+
 ## Application routes
 
 | Route | Purpose |
@@ -13,7 +15,7 @@ A single full-stack Next.js application containing the public Tabiat Gran websit
 | `/api/public/*` | Public website data/contact APIs |
 | `/api/admin/*` | Protected CMS APIs |
 | `/api/auth/*` | Authentication/profile APIs |
-| `/api/health` | Basic application health endpoint |
+| `/api/health` | Production readiness check for the database and authentication configuration |
 
 The public website and CMS use separate Next.js root layouts so their visual systems remain isolated even though they are deployed from one application.
 
