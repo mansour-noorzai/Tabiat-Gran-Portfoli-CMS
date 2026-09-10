@@ -1,0 +1,3 @@
+/* Dedicated public-site entrypoint. Keeping this separate from the admin CSS
+   also gives Vercel a fresh immutable asset when the liquid theme changes. */
+@import "./site.css";

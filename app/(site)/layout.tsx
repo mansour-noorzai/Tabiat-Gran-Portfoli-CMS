@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "../../styles/site.css";
+import "../../styles/liquid.css";
 
 export const metadata: Metadata = {
   title: "Tabiat Gran Agriculture Company",
