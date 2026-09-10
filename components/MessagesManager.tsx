@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AdminIcon from "@/components/AdminIcon";
 import AdminModal from "@/components/AdminModal";
 import { useAdminPreferences } from "@/components/AdminPreferences";
@@ -15,13 +15,32 @@ export default function MessagesManager() {
   const [status, setStatus] = useState("all");
   const [error, setError] = useState("");
 
-  async function load() {
-    const response = await fetch(`/api/admin/messages?status=${status}`, { cache: "no-store" });
-    const data = await response.json();
-    if (!response.ok) { setError(data.error || "Unable to load messages"); return; }
-    setItems(data.items || []);
-  }
-  useEffect(() => { void load(); }, [status]);
+  const load = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/admin/messages?status=${status}`, { cache: "no-store" });
+      const data = await response.json();
+      if (!response.ok) { setError(data.error || "Unable to load messages"); return; }
+      setItems(data.items || []);
+      setError("");
+    } catch {
+      setError("Unable to load messages");
+    }
+  }, [status]);
+
+  useEffect(() => {
+    void load();
+    const refresh = () => {
+      if (document.visibilityState === "visible") void load();
+    };
+    const interval = window.setInterval(refresh, 30_000);
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [load]);
 
   async function update(payload: Record<string, unknown>) {
     if (!selected) return;

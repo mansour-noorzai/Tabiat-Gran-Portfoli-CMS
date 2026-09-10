@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Header from "./components/Header";
 import Projects from "./components/Projects";
 import { Container, Display, Eyebrow, Lead } from "./components/ui";
@@ -86,13 +86,13 @@ function Hero() {
   const provinceCount = heroStats.find((stat) => stat.key === "stats.provinces")?.value || "24";
 
   return (
-    <section id="home" className="relative overflow-hidden bg-white pb-10 pt-[104px] sm:pb-14 md:pt-[132px] dark:bg-[#09110d]">
+    <section id="home" className="liquid-section relative overflow-hidden pb-10 pt-[104px] sm:pb-14 md:pt-[132px]">
       <div className="site-grid pointer-events-none absolute inset-0 opacity-55 dark:opacity-20" />
       <div className="pointer-events-none absolute -start-28 top-40 h-72 w-72 rounded-full bg-lime-200/40 blur-3xl dark:bg-leaf-500/10" />
 
       <Container className="relative grid items-center gap-12 pb-12 pt-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 lg:pb-16 lg:pt-14 xl:gap-24">
         <div className="order-2 lg:order-1">
-          <div className="inline-flex items-center gap-2 rounded-full border border-leaf-200 bg-leaf-50 px-3.5 py-2 text-[11px] font-extrabold uppercase tracking-[0.13em] text-leaf-800 dark:border-leaf-400/20 dark:bg-leaf-400/10 dark:text-leaf-200">
+          <div className="glass-control inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-[11px] font-extrabold uppercase tracking-[0.13em] text-leaf-800 dark:text-leaf-200">
             <span className="h-2 w-2 rounded-full bg-leaf-500 shadow-[0_0_0_4px_rgba(34,197,94,0.12)]" />
             {t("hero.badge")}
           </div>
@@ -105,11 +105,11 @@ function Hero() {
           <p className="mt-7 max-w-xl text-[15px] leading-7 text-slate-600 sm:text-lg sm:leading-8 dark:text-slate-300">{t("hero.sub")}</p>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <a href="#projects" className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-leaf-700 px-6 text-sm font-bold text-white shadow-[0_18px_32px_-16px_rgba(21,128,61,0.75)] transition hover:-translate-y-0.5 hover:bg-leaf-800 dark:bg-leaf-500 dark:hover:bg-leaf-400">
+            <a href="#projects" className="liquid-primary group inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-6 text-sm font-bold text-white transition hover:-translate-y-0.5">
               {t("hero.cta1")}
               <Arrow className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
             </a>
-            <a href="#contact" className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 text-sm font-bold text-slate-800 transition hover:border-leaf-300 hover:bg-leaf-50 hover:text-leaf-800 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10">
+            <a href="#contact" className="glass-control inline-flex min-h-12 items-center justify-center rounded-2xl px-6 text-sm font-bold text-slate-800 transition hover:text-leaf-800 dark:text-white">
               {t("hero.cta2")}
             </a>
           </div>
@@ -127,7 +127,7 @@ function Hero() {
         <div className="order-1 lg:order-2">
           <div className="relative mx-auto max-w-2xl">
             <div className="absolute -inset-4 -rotate-2 rounded-[2.5rem] bg-leaf-100 dark:bg-leaf-500/10 sm:-inset-6" />
-            <div className="hero-frame relative aspect-[4/4.45] overflow-hidden rounded-[2rem] bg-leaf-100 shadow-[0_30px_80px_-36px_rgba(15,23,42,0.55)] sm:rounded-[2.75rem]">
+            <div className="hero-frame liquid-image relative aspect-[4/4.45] overflow-hidden rounded-[2rem] bg-leaf-100 sm:rounded-[2.75rem]">
               <Image src={heroImage} alt={t("brand.full")} fill priority sizes="(max-width: 1023px) 92vw, 52vw" className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-leaf-950/55 via-transparent to-white/5" />
               <div className="absolute inset-x-5 bottom-5 flex items-end justify-between gap-4 sm:inset-x-7 sm:bottom-7">
@@ -135,10 +135,10 @@ function Hero() {
                   <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-lime-200">{t("brand.tag")}</p>
                   <p className="mt-2 text-sm font-semibold leading-6 sm:text-base">{t("brand.full")}</p>
                 </div>
-                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/25 bg-white/15 text-center text-sm font-black text-white backdrop-blur-md sm:h-16 sm:w-16">{establishedYear}</span>
+                <span className="liquid-dark-card grid h-14 w-14 shrink-0 place-items-center rounded-2xl text-center text-sm font-black text-white sm:h-16 sm:w-16">{establishedYear}</span>
               </div>
             </div>
-            <div className="absolute -bottom-5 -start-2 hidden rounded-2xl border border-white/70 bg-white/90 px-5 py-4 shadow-xl backdrop-blur sm:block dark:border-white/10 dark:bg-[#112018]/90">
+            <div className="glass-surface absolute -bottom-5 -start-2 hidden rounded-2xl px-5 py-4 sm:block">
               <div className="flex items-center gap-3">
                 <span className="grid h-10 w-10 place-items-center rounded-xl bg-leaf-100 text-leaf-800 dark:bg-leaf-400/10 dark:text-leaf-300">
                   <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M4 20V9l8-5 8 5v11M4 20h16M9 20v-6h6v6" /></svg>
@@ -151,7 +151,7 @@ function Hero() {
       </Container>
 
       <Container>
-        <div className="grid grid-cols-2 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_20px_60px_-42px_rgba(15,23,42,0.5)] dark:border-white/10 dark:bg-white/[0.035] lg:grid-cols-4">
+        <div className="glass-surface grid grid-cols-2 overflow-hidden rounded-3xl lg:grid-cols-4">
           {heroStats.map((stat, index) => (
             <div key={stat.key} className={`px-4 py-6 text-center sm:px-6 sm:py-7 ${index % 2 ? "border-s border-slate-200 dark:border-white/10" : ""} ${index > 1 ? "border-t border-slate-200 dark:border-white/10 lg:border-t-0 lg:border-s" : ""}`}>
               <div className="text-2xl font-black tracking-tight text-leaf-800 sm:text-3xl dark:text-leaf-300">{stat.value}</div>
@@ -172,16 +172,16 @@ function About() {
   const values = ["v1", "v2", "v3", "v4"];
 
   return (
-    <section id="about" className="scroll-mt-28 bg-white py-20 sm:py-28 dark:bg-[#09110d]">
+    <section id="about" className="liquid-section scroll-mt-28 py-20 sm:py-28">
       <Container className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20 xl:gap-28">
         <div className="relative mx-auto w-full max-w-xl pb-10 pe-6 sm:pb-16 sm:pe-14">
-          <div className="relative aspect-[5/5.4] overflow-hidden rounded-[2rem] bg-slate-100 sm:rounded-[2.75rem]">
+          <div className="liquid-image relative aspect-[5/5.4] overflow-hidden rounded-[2rem] bg-slate-100 sm:rounded-[2.75rem]">
             <Image src={aboutImage} alt={t("about.kicker")} fill sizes="(max-width: 1023px) 90vw, 45vw" className="object-cover" />
           </div>
-          <div className="absolute bottom-0 end-0 aspect-[4/3] w-[48%] overflow-hidden rounded-[1.5rem] border-[7px] border-white bg-slate-100 shadow-2xl dark:border-[#09110d] sm:rounded-[2rem] sm:border-[10px]">
+          <div className="liquid-image absolute bottom-0 end-0 aspect-[4/3] w-[48%] overflow-hidden rounded-[1.5rem] border-[7px] border-white bg-slate-100 shadow-2xl dark:border-[#09110d] sm:rounded-[2rem] sm:border-[10px]">
             <Image src={aboutImage2} alt="" fill sizes="(max-width: 640px) 42vw, 250px" className="object-cover" />
           </div>
-          <div className="absolute -start-2 top-8 max-w-[180px] rounded-2xl bg-leaf-950 px-5 py-4 text-white shadow-xl dark:bg-leaf-700 sm:-start-7 sm:top-12">
+          <div className="liquid-dark-card absolute -start-2 top-8 max-w-[180px] rounded-2xl bg-leaf-950/80 px-5 py-4 text-white shadow-xl sm:-start-7 sm:top-12">
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-lime-300">{t("about.mission")}</p>
             <p className="mt-2 text-xs font-semibold leading-5 text-white/85">{t("brand.tag")}</p>
           </div>
@@ -195,7 +195,7 @@ function About() {
 
           <div className="mt-9 grid gap-3 sm:grid-cols-2">
             {values.map((value) => (
-              <article key={value} className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 transition hover:border-leaf-200 hover:bg-leaf-50 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-leaf-400/20">
+              <article key={value} className="glass-card rounded-2xl p-4 transition">
                 <div className="flex gap-3">
                   <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-leaf-100 text-leaf-800 dark:bg-leaf-400/10 dark:text-leaf-300">
                     <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg>
@@ -226,7 +226,7 @@ function Services() {
   const services = site?.services?.length ? site.services.map((service, index) => ({ key: `s${index + 1}`, icon: service.icon || `s${index + 1}` })) : ["s1", "s2", "s3", "s4", "s5", "s6"].map((key) => ({ key, icon: key }));
 
   return (
-    <section id="services" className="scroll-mt-28 bg-[#f5f8f5] py-20 sm:py-28 dark:bg-[#0d1711]">
+    <section id="services" className="liquid-section-tint scroll-mt-28 py-20 sm:py-28">
       <Container>
         <div className="grid gap-6 lg:grid-cols-[1fr_0.55fr] lg:items-end">
           <div><Eyebrow>{t("services.kicker")}</Eyebrow><Display className="mt-5 max-w-3xl">{t("services.title")}</Display></div>
@@ -235,7 +235,7 @@ function Services() {
 
         <div className="mt-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {services.map((service, index) => (
-            <article key={service.key} className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-leaf-200 hover:shadow-[0_24px_60px_-36px_rgba(15,23,42,0.45)] sm:p-7 dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-leaf-400/25">
+            <article key={service.key} className="glass-card group relative overflow-hidden rounded-3xl p-6 transition duration-300 hover:-translate-y-1 sm:p-7">
               <div className="flex items-start justify-between gap-6">
                 <span className="grid h-12 w-12 place-items-center rounded-2xl bg-leaf-100 text-leaf-800 transition group-hover:bg-leaf-700 group-hover:text-white dark:bg-leaf-400/10 dark:text-leaf-300 dark:group-hover:bg-leaf-500 dark:group-hover:text-white">
                   <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{SERVICE_ICONS[service.icon] ?? SERVICE_ICONS.s1}</svg>
@@ -270,13 +270,13 @@ function Partners() {
   const testimonials = site?.testimonials?.length ? site.testimonials.map((item) => item.key) : ["t1", "t2", "t3"];
 
   return (
-    <section id="partners" className="scroll-mt-28 overflow-hidden bg-leaf-950 py-20 text-white sm:py-28 dark:bg-[#07100a]">
+    <section id="partners" className="liquid-deep scroll-mt-28 overflow-hidden py-20 text-white sm:py-28">
       <Container>
         <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <div><Eyebrow inverse>{t("partners.kicker")}</Eyebrow><Display inverse className="mt-5">{t("partners.title")}</Display><p className="mt-6 max-w-xl text-sm leading-7 text-white/65 sm:text-base">{t("partners.sub")}</p></div>
           <div className="grid gap-3 sm:grid-cols-3">
             {groups.map((group) => (
-              <div key={group.key} className="rounded-3xl border border-white/10 bg-white/[0.055] p-5 backdrop-blur-sm">
+              <div key={group.key} className="liquid-dark-card rounded-3xl p-5">
                 <h3 className="text-[10px] font-extrabold uppercase tracking-[0.17em] text-lime-300">{t(group.key)}</h3>
                 <ul className="mt-4 space-y-2.5">
                   {group.items.slice(0, 8).map((item) => <li key={item} className="border-b border-white/[0.07] pb-2.5 text-xs font-semibold leading-5 text-white/75 last:border-0">{item}</li>)}
@@ -289,10 +289,10 @@ function Partners() {
         <div className="mt-16 border-t border-white/10 pt-12">
           <div className="grid gap-5 lg:grid-cols-3">
             {testimonials.map((key, index) => (
-              <figure key={key} className="rounded-3xl bg-white p-6 text-slate-800 sm:p-7 dark:bg-white/[0.07] dark:text-white">
+              <figure key={key} className="liquid-dark-card rounded-3xl p-6 text-white sm:p-7">
                 <div className="flex items-center justify-between"><span className="text-4xl font-black leading-none text-leaf-200 dark:text-leaf-400/30">“</span><span className="text-[10px] font-black tracking-[0.2em] text-slate-300 dark:text-white/20">0{index + 1}</span></div>
-                <blockquote className="mt-3 text-sm font-medium leading-7 text-slate-600 dark:text-slate-200">{t(`${key}.q`)}</blockquote>
-                <figcaption className="mt-5 border-t border-slate-100 pt-4 text-xs font-extrabold text-leaf-800 dark:border-white/10 dark:text-leaf-300">{t(`${key}.a`)}</figcaption>
+                <blockquote className="mt-3 text-sm font-medium leading-7 text-white/78">{t(`${key}.q`)}</blockquote>
+                <figcaption className="mt-5 border-t border-white/10 pt-4 text-xs font-extrabold text-lime-300">{t(`${key}.a`)}</figcaption>
               </figure>
             ))}
           </div>
@@ -312,6 +312,13 @@ function Contact() {
   const site = useCmsSite();
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState("");
+  const feedbackRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (status === "sent" || status === "error") {
+      feedbackRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [status]);
 
   async function submitContact(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -339,14 +346,14 @@ function Contact() {
     { key: "contact.email2", value: email, path: "M3 6h18v12H3zM3 7l9 6 9-6", ltr: true },
     { key: "contact.hours", value: t("contact.hoursv"), path: "M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z", ltr: false },
   ];
-  const field = "mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-leaf-500 focus:bg-white focus:ring-4 focus:ring-leaf-500/10 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:border-leaf-400";
+  const field = "glass-input mt-2 w-full rounded-2xl px-4 py-3.5 text-base text-slate-900 outline-none transition placeholder:text-slate-400 dark:text-white sm:text-sm";
 
   return (
-    <section id="contact" className="scroll-mt-28 bg-[#f5f8f5] py-20 sm:py-28 dark:bg-[#0d1711]">
+    <section id="contact" className="liquid-section-tint scroll-mt-28 py-20 sm:py-28">
       <Container>
-        <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_30px_80px_-52px_rgba(15,23,42,0.5)] dark:border-white/10 dark:bg-[#111d16] sm:rounded-[2.75rem]">
+        <div className="glass-surface overflow-hidden rounded-[2rem] sm:rounded-[2.75rem]">
           <div className="grid lg:grid-cols-[0.82fr_1.18fr]">
-            <div className="relative overflow-hidden bg-leaf-900 p-6 text-white sm:p-10 lg:p-12">
+            <div className="liquid-deep relative overflow-hidden p-6 text-white sm:p-10 lg:p-12">
               <div className="pointer-events-none absolute -end-24 -top-24 h-64 w-64 rounded-full border-[45px] border-white/[0.04]" />
               <div className="relative"><Eyebrow inverse>{t("contact.kicker")}</Eyebrow><h2 className="mt-5 text-[clamp(2rem,5vw,3.6rem)] font-black leading-[1.02] tracking-[-0.04em]">{t("contact.title")}</h2><p className="mt-6 text-sm leading-7 text-white/65">{t("contact.sub")}</p></div>
               <div className="relative mt-10 space-y-5">
@@ -364,11 +371,10 @@ function Contact() {
                 <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200">{t("contact.subject")}<input name="subject" placeholder={t("contact.subject")} className={field} /></label>
               </div>
               <label className="mt-5 block text-xs font-extrabold text-slate-700 dark:text-slate-200">{t("contact.message")}<textarea rows={5} required minLength={10} name="message" placeholder={t("contact.message")} className={`${field} resize-none`} /></label>
-              <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
-              <button type="submit" disabled={status === "sending"} className="group mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-leaf-700 px-6 text-sm font-extrabold text-white transition hover:bg-leaf-800 disabled:cursor-wait disabled:opacity-60 dark:bg-leaf-500 dark:hover:bg-leaf-400">
-                {status === "sending" ? "…" : t("contact.send")}<Arrow className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
+              <button type="submit" disabled={status === "sending"} aria-busy={status === "sending"} className="liquid-primary group mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl px-6 text-sm font-extrabold text-white transition disabled:cursor-wait disabled:opacity-60">
+                {status === "sending" ? "…" : status === "sent" ? "✓" : t("contact.send")}{status === "sent" ? null : <Arrow className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />}
               </button>
-              <div aria-live="polite">
+              <div ref={feedbackRef} aria-live="polite" role="status">
                 {status === "sent" ? <p className="mt-4 rounded-xl bg-leaf-50 px-4 py-3 text-center text-sm font-bold text-leaf-800 dark:bg-leaf-400/10 dark:text-leaf-300">{t("contact.sent")}</p> : null}
                 {status === "error" ? <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-center text-sm font-bold text-red-700 dark:bg-red-400/10 dark:text-red-300">{error}</p> : null}
               </div>
@@ -388,7 +394,7 @@ function Footer() {
   const links = ["about", "services", "projects", "partners", "contact"];
 
   return (
-    <footer className="border-t border-slate-200 bg-white py-12 dark:border-white/10 dark:bg-[#09110d] sm:py-16">
+    <footer className="glass-footer border-t border-white/60 py-12 dark:border-white/10 sm:py-16">
       <Container>
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.3fr_0.7fr_0.8fr]">
           <div><div className="text-xl font-black tracking-[-0.03em] text-slate-950 dark:text-white">{t("brand.full")}</div><p className="mt-4 max-w-lg text-sm leading-7 text-slate-500 dark:text-slate-400">{t("footer.about")}</p><p className="mt-4 text-[11px] font-semibold leading-5 text-slate-400">{t("footer.reg")}</p></div>
@@ -404,7 +410,7 @@ function Footer() {
 function Site() {
   const { theme, toggle } = useTheme();
   return (
-    <div className="min-h-screen overflow-x-clip bg-white text-slate-800 dark:bg-[#09110d] dark:text-slate-200">
+    <div className="liquid-canvas min-h-screen overflow-x-clip text-slate-800 dark:text-slate-200">
       <a href="#main-content" className="sr-only z-[100] rounded-lg bg-white px-4 py-3 font-bold text-slate-900 focus:not-sr-only focus:fixed focus:start-4 focus:top-4">Skip to content</a>
       <SeoSync />
       <Header theme={theme} toggleTheme={toggle} />

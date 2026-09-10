@@ -43,17 +43,20 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 112px;
-  background: #ffffff;
+  background: #eef8f2;
 }
 
 html.dark {
-  background: #09110d;
+  background: #06100b;
 }
 
 body {
   margin: 0;
   overflow-x: hidden;
-  background: #ffffff;
+  background:
+    radial-gradient(circle at 8% 5%, rgb(134 239 172 / 0.28), transparent 30rem),
+    radial-gradient(circle at 92% 14%, rgb(186 230 253 / 0.3), transparent 28rem),
+    linear-gradient(145deg, #f8fcf9 0%, #eff8f3 48%, #f8fbff 100%);
   color: #1e293b;
   font-family: var(--font-sans);
   text-rendering: optimizeLegibility;
@@ -61,7 +64,10 @@ body {
 }
 
 .dark body {
-  background: #09110d;
+  background:
+    radial-gradient(circle at 8% 6%, rgb(34 197 94 / 0.16), transparent 30rem),
+    radial-gradient(circle at 92% 18%, rgb(14 116 144 / 0.14), transparent 28rem),
+    linear-gradient(145deg, #06100b 0%, #091711 50%, #071015 100%);
   color: #e2e8f0;
 }
 
@@ -136,6 +142,223 @@ a {
   pointer-events: none;
 }
 
+/* Public-site liquid glass system. These classes are intentionally scoped to
+   the site bundle so the CMS/admin visual system stays unchanged. */
+.liquid-canvas {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 12% 10%, rgb(134 239 172 / 0.28), transparent 25rem),
+    radial-gradient(circle at 88% 22%, rgb(125 211 252 / 0.24), transparent 27rem),
+    radial-gradient(circle at 52% 68%, rgb(253 224 71 / 0.13), transparent 30rem),
+    linear-gradient(145deg, #f9fcfa 0%, #eef8f2 48%, #f7fbff 100%);
+}
+
+.dark .liquid-canvas {
+  background:
+    radial-gradient(circle at 12% 10%, rgb(34 197 94 / 0.15), transparent 25rem),
+    radial-gradient(circle at 88% 22%, rgb(14 165 233 / 0.13), transparent 27rem),
+    radial-gradient(circle at 52% 68%, rgb(202 138 4 / 0.08), transparent 30rem),
+    linear-gradient(145deg, #06100b 0%, #091711 48%, #071015 100%);
+}
+
+.liquid-section,
+.liquid-section-tint {
+  position: relative;
+  background: transparent;
+}
+
+.liquid-section-tint::before {
+  position: absolute;
+  inset: 1.25rem clamp(0.5rem, 2vw, 2rem);
+  z-index: -1;
+  border: 1px solid rgb(255 255 255 / 0.62);
+  border-radius: clamp(2rem, 5vw, 4rem);
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.42), rgb(240 253 244 / 0.25));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.75), 0 28px 80px -58px rgb(15 23 42 / 0.38);
+  content: "";
+  backdrop-filter: blur(18px) saturate(1.3);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
+}
+
+.dark .liquid-section,
+.dark .liquid-section-tint {
+  background: transparent;
+}
+
+.dark .liquid-section-tint::before {
+  border-color: rgb(255 255 255 / 0.09);
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.055), rgb(16 185 129 / 0.025));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 28px 80px -58px rgb(0 0 0 / 0.9);
+}
+
+.glass-surface,
+.glass-card,
+.glass-popover,
+.glass-control,
+.glass-input {
+  border: 1px solid rgb(255 255 255 / 0.72);
+  background: linear-gradient(145deg, rgb(255 255 255 / 0.7), rgb(255 255 255 / 0.38));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    inset 0 -1px 0 rgb(15 23 42 / 0.04),
+    0 18px 50px -36px rgb(15 23 42 / 0.52);
+  backdrop-filter: blur(22px) saturate(1.45);
+  -webkit-backdrop-filter: blur(22px) saturate(1.45);
+}
+
+.glass-card {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.94),
+    inset 0 -1px 0 rgb(15 23 42 / 0.05),
+    0 24px 64px -44px rgb(15 23 42 / 0.58);
+}
+
+.glass-card:hover {
+  border-color: rgb(134 239 172 / 0.8);
+  background: linear-gradient(145deg, rgb(255 255 255 / 0.82), rgb(240 253 244 / 0.47));
+  box-shadow: inset 0 1px 0 #fff, 0 28px 68px -42px rgb(21 128 61 / 0.42);
+}
+
+.glass-control {
+  background: linear-gradient(145deg, rgb(255 255 255 / 0.86), rgb(255 255 255 / 0.5));
+  box-shadow: inset 0 1px 0 #fff, 0 12px 28px -22px rgb(15 23 42 / 0.7);
+}
+
+.glass-control:hover {
+  border-color: rgb(134 239 172 / 0.82);
+  background: linear-gradient(145deg, rgb(255 255 255 / 0.96), rgb(220 252 231 / 0.62));
+}
+
+.glass-popover {
+  background: rgb(250 255 252 / 0.82);
+  box-shadow: inset 0 1px 0 #fff, 0 28px 70px -28px rgb(15 23 42 / 0.48);
+}
+
+.glass-input {
+  background: rgb(255 255 255 / 0.54);
+  box-shadow: inset 0 1px 2px rgb(15 23 42 / 0.04), inset 0 1px 0 rgb(255 255 255 / 0.9);
+  backdrop-filter: blur(14px) saturate(1.25);
+  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+}
+
+.glass-input:focus {
+  border-color: rgb(34 197 94 / 0.7);
+  background: rgb(255 255 255 / 0.83);
+  box-shadow: 0 0 0 4px rgb(34 197 94 / 0.12), inset 0 1px 0 #fff;
+}
+
+.dark .glass-surface,
+.dark .glass-card,
+.dark .glass-popover,
+.dark .glass-control,
+.dark .glass-input {
+  border-color: rgb(255 255 255 / 0.11);
+  background: linear-gradient(145deg, rgb(255 255 255 / 0.095), rgb(255 255 255 / 0.035));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.11), 0 20px 55px -38px rgb(0 0 0 / 0.92);
+}
+
+.dark .glass-card:hover,
+.dark .glass-control:hover {
+  border-color: rgb(74 222 128 / 0.34);
+  background: linear-gradient(145deg, rgb(255 255 255 / 0.13), rgb(34 197 94 / 0.055));
+}
+
+.dark .glass-popover {
+  background: rgb(8 24 16 / 0.84);
+}
+
+.dark .glass-input {
+  background: rgb(255 255 255 / 0.055);
+}
+
+.dark .glass-input:focus {
+  border-color: rgb(74 222 128 / 0.58);
+  background: rgb(255 255 255 / 0.09);
+  box-shadow: 0 0 0 4px rgb(74 222 128 / 0.1), inset 0 1px 0 rgb(255 255 255 / 0.1);
+}
+
+.liquid-header {
+  border-bottom-color: rgb(255 255 255 / 0.58);
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.78), rgb(255 255 255 / 0.56));
+  box-shadow: inset 0 -1px 0 rgb(15 23 42 / 0.05), 0 16px 42px -32px rgb(15 23 42 / 0.68);
+  backdrop-filter: blur(24px) saturate(1.55);
+  -webkit-backdrop-filter: blur(24px) saturate(1.55);
+}
+
+.dark .liquid-header {
+  border-bottom-color: rgb(255 255 255 / 0.09);
+  background: linear-gradient(180deg, rgb(6 16 11 / 0.82), rgb(6 16 11 / 0.58));
+  box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.06), 0 16px 42px -32px rgb(0 0 0 / 0.95);
+}
+
+.liquid-deep {
+  position: relative;
+  background:
+    radial-gradient(circle at 12% 12%, rgb(74 222 128 / 0.18), transparent 24rem),
+    radial-gradient(circle at 88% 78%, rgb(56 189 248 / 0.12), transparent 28rem),
+    linear-gradient(145deg, #082a19, #071c12 55%, #061712);
+}
+
+.liquid-dark-card {
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: linear-gradient(145deg, rgb(255 255 255 / 0.11), rgb(255 255 255 / 0.045));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 22px 56px -38px rgb(0 0 0 / 0.82);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+}
+
+.liquid-primary {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.2);
+  background: linear-gradient(145deg, #248343, #145d31 58%, #0c4725);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.28), 0 18px 36px -20px rgb(21 128 61 / 0.92);
+}
+
+.liquid-primary::before {
+  position: absolute;
+  inset: 0 0 52% 0;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.18), transparent);
+  content: "";
+  pointer-events: none;
+}
+
+.liquid-primary:hover {
+  background: linear-gradient(145deg, #2c9550, #176c38 58%, #10552c);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.34), 0 20px 40px -20px rgb(21 128 61 / 0.94);
+}
+
+.liquid-image {
+  border: 1px solid rgb(255 255 255 / 0.72);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.75), 0 34px 85px -42px rgb(15 23 42 / 0.62);
+}
+
+.dark .liquid-image {
+  border-color: rgb(255 255 255 / 0.12);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 34px 85px -42px rgb(0 0 0 / 0.95);
+}
+
+.glass-footer {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.34), rgb(255 255 255 / 0.58));
+  backdrop-filter: blur(22px) saturate(1.4);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+}
+
+.dark .glass-footer {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.025), rgb(0 0 0 / 0.16));
+}
+
+.liquid-canvas h1,
+.liquid-canvas h2,
+.liquid-canvas h3,
+.liquid-canvas p,
+.liquid-canvas a,
+.liquid-canvas button,
+.liquid-canvas li {
+  overflow-wrap: anywhere;
+}
+
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -154,6 +377,23 @@ a {
 @media (max-width: 480px) {
   html {
     scroll-padding-top: 84px;
+  }
+
+  .liquid-section-tint::before {
+    inset: 0.5rem 0.25rem;
+    border-radius: 2rem;
+  }
+
+  .glass-surface,
+  .glass-card,
+  .glass-popover,
+  .glass-control,
+  .glass-input,
+  .liquid-header,
+  .liquid-dark-card,
+  .glass-footer {
+    backdrop-filter: blur(12px) saturate(1.25);
+    -webkit-backdrop-filter: blur(12px) saturate(1.25);
   }
 }
 

@@ -69,8 +69,8 @@ export default function Header({ theme, toggleTheme }: { theme: "light" | "dark"
   };
 
   return (
-    <header className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${scrolled ? "border-slate-200/80 bg-white/90 shadow-[0_12px_36px_-24px_rgba(15,23,42,0.45)] backdrop-blur-xl dark:border-white/10 dark:bg-[#09110d]/90" : "border-transparent bg-white/75 backdrop-blur-md dark:bg-[#09110d]/75"}`}>
-      <div className="hidden border-b border-slate-200/20 bg-leaf-950 text-white md:block">
+    <header className={`liquid-header fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${scrolled ? "shadow-[0_18px_42px_-30px_rgba(15,23,42,0.58)]" : "border-transparent"}`}>
+      <div className="liquid-deep hidden border-b border-white/10 text-white md:block">
         <div className={`${container} flex h-8 items-center justify-between text-[10px] font-semibold uppercase tracking-[0.15em] text-white/70`}>
           <span>{t("brand.tag")}</span>
           <a href="#contact" className="transition hover:text-lime-300">{t("nav.quote")} <span aria-hidden="true">↗</span></a>
@@ -78,13 +78,13 @@ export default function Header({ theme, toggleTheme }: { theme: "light" | "dark"
       </div>
 
       <div className={`${container} flex h-[72px] items-center justify-between gap-3 md:h-[76px]`}>
-        <a href="#home" onClick={closeNavigation} className="min-w-0 max-w-[210px] sm:max-w-none" aria-label={t("nav.home")}>
+        <a href="#home" onClick={closeNavigation} className="min-w-0 max-w-[150px] sm:max-w-none" aria-label={t("nav.home")}>
           <Logo name={t("brand.name")} tag={t("brand.tag")} />
         </a>
 
         <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Primary navigation">
           {NAV.map((item) => (
-            <a key={item.id} href={`#${item.id}`} className="rounded-xl px-3.5 py-2.5 text-[13px] font-semibold text-slate-600 transition hover:bg-leaf-50 hover:text-leaf-800 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-leaf-300">
+            <a key={item.id} href={`#${item.id}`} className="rounded-xl px-3.5 py-2.5 text-[13px] font-semibold text-slate-600 transition hover:bg-white/55 hover:text-leaf-800 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-leaf-300">
               {t(item.key)}
             </a>
           ))}
@@ -92,14 +92,14 @@ export default function Header({ theme, toggleTheme }: { theme: "light" | "dark"
 
         <div className="flex shrink-0 items-center gap-2">
           <div className="relative hidden sm:block" ref={langRef}>
-            <button type="button" onClick={() => setLangOpen((open) => !open)} aria-expanded={langOpen} aria-haspopup="listbox" aria-label={t("lang.select")} className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 transition hover:border-leaf-300 hover:text-leaf-800 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
+            <button type="button" onClick={() => setLangOpen((open) => !open)} aria-expanded={langOpen} aria-haspopup="listbox" aria-label={t("lang.select")} className="glass-control flex h-11 items-center gap-2 rounded-2xl px-3 text-xs font-bold text-slate-700 transition hover:text-leaf-800 dark:text-slate-200">
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.4 2.7 3.7 5.7 3.7 9S14.4 18.3 12 21c-2.4-2.7-3.7-5.7-3.7-9S9.6 5.7 12 3Z" /></svg>
               {lang.toUpperCase()}
               <svg viewBox="0 0 20 20" className={`h-3.5 w-3.5 transition ${langOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m5 7 5 5 5-5" /></svg>
             </button>
 
             {langOpen ? (
-              <div role="listbox" className={`absolute top-12 w-48 overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 shadow-2xl shadow-slate-950/15 dark:border-white/10 dark:bg-[#111d16] ${rtl ? "start-0" : "end-0"}`}>
+              <div role="listbox" className={`glass-popover absolute top-14 w-48 overflow-hidden rounded-2xl p-1.5 ${rtl ? "start-0" : "end-0"}`}>
                 {LANGS.map((item) => (
                   <button type="button" role="option" aria-selected={lang === item.code} key={item.code} onClick={() => { setLang(item.code as Lang); setLangOpen(false); }} className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 text-sm transition hover:bg-leaf-50 dark:hover:bg-white/5 ${lang === item.code ? "font-bold text-leaf-800 dark:text-leaf-300" : "text-slate-600 dark:text-slate-300"}`}>
                     <span>{item.native}</span><span className="text-[10px] font-bold tracking-widest text-slate-400">{item.flag}</span>
@@ -109,7 +109,7 @@ export default function Header({ theme, toggleTheme }: { theme: "light" | "dark"
             ) : null}
           </div>
 
-          <button type="button" onClick={toggleTheme} aria-label={theme === "dark" ? t("theme.light") : t("theme.dark")} title={theme === "dark" ? t("theme.light") : t("theme.dark")} className="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:border-leaf-300 hover:bg-leaf-50 hover:text-leaf-800 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:text-lime-300">
+          <button type="button" onClick={toggleTheme} aria-label={theme === "dark" ? t("theme.light") : t("theme.dark")} title={theme === "dark" ? t("theme.light") : t("theme.dark")} className="glass-control grid h-11 w-11 place-items-center rounded-2xl text-slate-700 transition hover:text-leaf-800 dark:text-slate-200 dark:hover:text-lime-300">
             {theme === "dark" ? (
               <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4" /></svg>
             ) : (
@@ -117,16 +117,16 @@ export default function Header({ theme, toggleTheme }: { theme: "light" | "dark"
             )}
           </button>
 
-          <a href="#contact" className="hidden h-10 items-center rounded-xl bg-leaf-700 px-5 text-[12px] font-bold text-white shadow-[0_12px_24px_-14px_rgba(21,128,61,0.9)] transition hover:bg-leaf-800 lg:flex dark:bg-leaf-500 dark:hover:bg-leaf-400">{t("nav.quote")}</a>
+          <a href="#contact" className="liquid-primary hidden h-11 items-center rounded-2xl px-5 text-[12px] font-bold text-white transition lg:flex">{t("nav.quote")}</a>
 
-          <button type="button" onClick={() => setMobileOpen((open) => !open)} aria-label="Menu" aria-expanded={mobileOpen} aria-controls="mobile-navigation" className="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-800 xl:hidden dark:border-white/10 dark:bg-white/5 dark:text-white">
+          <button type="button" onClick={() => setMobileOpen((open) => !open)} aria-label="Menu" aria-expanded={mobileOpen} aria-controls="mobile-navigation" className="glass-control grid h-11 w-11 place-items-center rounded-2xl text-slate-800 xl:hidden dark:text-white">
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden="true">{mobileOpen ? <path d="M6 6l12 12M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}</svg>
           </button>
         </div>
       </div>
 
       {mobileOpen ? (
-        <nav id="mobile-navigation" aria-label="Mobile navigation" className="border-t border-slate-200 bg-white px-4 pb-5 pt-3 shadow-2xl dark:border-white/10 dark:bg-[#09110d] xl:hidden">
+        <nav id="mobile-navigation" aria-label="Mobile navigation" className="glass-popover border-x-0 border-b-0 px-4 pb-5 pt-3 xl:hidden">
           <div className="mx-auto grid max-w-[1440px] gap-1 sm:grid-cols-2">
             {NAV.map((item) => (
               <a key={item.id} href={`#${item.id}`} onClick={closeNavigation} className="rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-leaf-50 hover:text-leaf-800 dark:text-slate-200 dark:hover:bg-white/5">{t(item.key)}</a>
@@ -137,7 +137,7 @@ export default function Header({ theme, toggleTheme }: { theme: "light" | "dark"
               <button type="button" key={item.code} onClick={() => setLang(item.code as Lang)} className={`flex-1 rounded-xl border px-2 py-2.5 text-xs font-bold ${lang === item.code ? "border-leaf-700 bg-leaf-700 text-white dark:border-leaf-400 dark:bg-leaf-500" : "border-slate-200 text-slate-600 dark:border-white/10 dark:text-slate-300"}`}>{item.native}</button>
             ))}
           </div>
-          <a href="#contact" onClick={closeNavigation} className="mx-auto mt-3 flex max-w-[1440px] items-center justify-center rounded-xl bg-leaf-700 px-4 py-3 text-sm font-bold text-white dark:bg-leaf-500">{t("nav.quote")}</a>
+          <a href="#contact" onClick={closeNavigation} className="liquid-primary mx-auto mt-3 flex min-h-12 max-w-[1440px] items-center justify-center rounded-2xl px-4 py-3 text-sm font-bold text-white">{t("nav.quote")}</a>
         </nav>
       ) : null}
     </header>
