@@ -2,15 +2,15 @@ import type { ReactNode } from "react";
 
 export function Container({ className = "", children }: { className?: string; children: ReactNode }) {
   return (
-    <div className={`mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-10 ${className}`}>{children}</div>
+    <div className={`mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-10 xl:px-14 ${className}`}>{children}</div>
   );
 }
 
-export function Eyebrow({ children }: { children: ReactNode }) {
+export function Eyebrow({ children, inverse = false }: { children: ReactNode; inverse?: boolean }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="h-px w-8 bg-leaf-600/50 dark:bg-leaf-400/50" />
-      <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-leaf-700 dark:text-leaf-300">
+      <span className={`h-px w-8 ${inverse ? "bg-lime-300/70" : "bg-leaf-600/50 dark:bg-leaf-400/50"}`} />
+      <span className={`text-[10px] font-extrabold uppercase tracking-[0.22em] ${inverse ? "text-lime-300" : "text-leaf-700 dark:text-leaf-300"}`}>
         {children}
       </span>
     </div>
@@ -21,14 +21,16 @@ export function Display({
   children,
   className = "",
   as: Tag = "h2",
+  inverse = false,
 }: {
   children: ReactNode;
   className?: string;
   as?: "h1" | "h2" | "h3";
+  inverse?: boolean;
 }) {
   return (
     <Tag
-      className={`font-display text-[clamp(1.9rem,4vw,3rem)] font-medium leading-[1.05] tracking-tight text-leaf-950 dark:text-white ${className}`}
+      className={`text-[clamp(2rem,4.5vw,3.65rem)] font-black leading-[1.02] tracking-[-0.045em] ${inverse ? "text-white" : "text-slate-950 dark:text-white"} ${className}`}
     >
       {children}
     </Tag>
@@ -37,7 +39,7 @@ export function Display({
 
 export function Lead({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <p className={`max-w-2xl text-[15px] leading-8 text-slate-600 sm:text-base dark:text-slate-300 ${className}`}>
+    <p className={`max-w-2xl text-[15px] leading-7 text-slate-600 sm:text-base sm:leading-8 dark:text-slate-300 ${className}`}>
       {children}
     </p>
   );

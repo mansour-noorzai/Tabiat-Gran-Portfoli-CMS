@@ -471,10 +471,12 @@ const I18nContext = createContext<Ctx>({
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [remoteDicts, setRemoteDicts] = useState<Partial<Record<Lang, Dict>>>({});
-  const [lang, setLang] = useState<Lang>(() => {
-    const saved = typeof localStorage !== "undefined" ? localStorage.getItem("tg-lang") : null;
-    return (saved as Lang) || "en";
-  });
+  const [lang, setLang] = useState<Lang>("en");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("tg-lang");
+    if (saved === "en" || saved === "fa" || saved === "ps") setLang(saved);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("tg-lang", lang);

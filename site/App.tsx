@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useEffect, useState, type ReactNode } from "react";
 import Header from "./components/Header";
 import Projects from "./components/Projects";
 import { Container, Display, Eyebrow, Lead } from "./components/ui";
@@ -8,111 +9,153 @@ import { I18nProvider, useI18n } from "./i18n";
 import { ABOUT_IMAGE, ABOUT_IMAGE_2, HERO_IMAGE, partners as fallbackPartners, stats as fallbackStats } from "./data";
 import { cmsApiUrl, useCmsSite } from "./cms";
 
-/* ---------------- theme hook ---------------- */
+type Theme = "light" | "dark";
+
 function useTheme() {
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    const saved = typeof localStorage !== "undefined" ? localStorage.getItem("tg-theme") : null;
-    if (saved === "light" || saved === "dark") return saved;
-    return typeof window !== "undefined" &&
-      window.matchMedia?.("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-  });
+  const [theme, setTheme] = useState<Theme>("light");
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    localStorage.setItem("tg-theme", theme);
-  }, [theme]);
+    const saved = localStorage.getItem("tg-theme");
+    setTheme(saved === "dark" ? "dark" : "light");
+    setHydrated(true);
+  }, []);
 
-  return { theme, toggle: () => setTheme((t) => (t === "dark" ? "light" : "dark")) };
+  useEffect(() => {
+    if (!hydrated) return;
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    document.documentElement.style.colorScheme = theme;
+    localStorage.setItem("tg-theme", theme);
+  }, [hydrated, theme]);
+
+  return {
+    theme,
+    toggle: () => setTheme((current) => (current === "dark" ? "light" : "dark")),
+  };
 }
 
 function SeoSync() {
   const { lang } = useI18n();
   const site = useCmsSite();
+
   useEffect(() => {
     const settings = site?.settings as any;
     const title = settings?.seo?.title?.[lang];
     const description = settings?.seo?.description?.[lang];
     const ogImage = settings?.seo?.ogImage?.url;
+
     if (title) document.title = title;
     if (description) {
       let meta = document.querySelector('meta[name="description"]') as HTMLMetaElement | null;
-      if (!meta) { meta = document.createElement("meta"); meta.name = "description"; document.head.appendChild(meta); }
+      if (!meta) {
+        meta = document.createElement("meta");
+        meta.name = "description";
+        document.head.appendChild(meta);
+      }
       meta.content = description;
     }
     if (ogImage) {
       let meta = document.querySelector('meta[property="og:image"]') as HTMLMetaElement | null;
-      if (!meta) { meta = document.createElement("meta"); meta.setAttribute("property", "og:image"); document.head.appendChild(meta); }
+      if (!meta) {
+        meta = document.createElement("meta");
+        meta.setAttribute("property", "og:image");
+        document.head.appendChild(meta);
+      }
       meta.content = ogImage;
     }
   }, [lang, site]);
+
   return null;
 }
 
-/* ============================= HERO ============================= */
+function Arrow({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" className={`h-4 w-4 ${className}`} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 10h12M11 5l5 5-5 5" />
+    </svg>
+  );
+}
+
 function Hero() {
   const { t } = useI18n();
   const site = useCmsSite();
+  const settings = site?.settings as any;
   const heroImage = site?.images?.hero || HERO_IMAGE;
   const heroStats = site?.stats?.length ? site.stats : fallbackStats;
+  const establishedYear = settings?.company?.establishedYear || "2009";
+  const provinceCount = heroStats.find((stat) => stat.key === "stats.provinces")?.value || "24";
+
   return (
-    <section id="home" className="relative min-h-[100svh] overflow-hidden bg-sand-100 dark:bg-[#0b1310]">
-      {/* soft backdrop wash instead of full dark overlay */}
-      <img src={heroImage} alt="" className="absolute inset-0 h-full w-full object-cover" />
-      <div className="absolute inset-0 bg-gradient-to-b from-sand-100/85 via-sand-100/40 to-sand-100 dark:from-[#0b1310]/90 dark:via-[#0b1310]/55 dark:to-[#0b1310]" />
+    <section id="home" className="relative overflow-hidden bg-white pb-10 pt-[104px] sm:pb-14 md:pt-[132px] dark:bg-[#09110d]">
+      <div className="site-grid pointer-events-none absolute inset-0 opacity-55 dark:opacity-20" />
+      <div className="pointer-events-none absolute -start-28 top-40 h-72 w-72 rounded-full bg-lime-200/40 blur-3xl dark:bg-leaf-500/10" />
 
-      <Container className="relative flex min-h-[100svh] flex-col justify-end pb-16 pt-32 sm:pb-20">
-        <div className="max-w-3xl">
-          <span className="inline-flex items-center gap-2.5 rounded-full border border-leaf-700/20 bg-white/70 px-4 py-2 text-[12.5px] font-semibold text-leaf-800 backdrop-blur dark:border-white/20 dark:bg-white/10 dark:text-leaf-200">
-            <span className="h-1.5 w-1.5 rounded-full bg-leaf-500" />
+      <Container className="relative grid items-center gap-12 pb-12 pt-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 lg:pb-16 lg:pt-14 xl:gap-24">
+        <div className="order-2 lg:order-1">
+          <div className="inline-flex items-center gap-2 rounded-full border border-leaf-200 bg-leaf-50 px-3.5 py-2 text-[11px] font-extrabold uppercase tracking-[0.13em] text-leaf-800 dark:border-leaf-400/20 dark:bg-leaf-400/10 dark:text-leaf-200">
+            <span className="h-2 w-2 rounded-full bg-leaf-500 shadow-[0_0_0_4px_rgba(34,197,94,0.12)]" />
             {t("hero.badge")}
-          </span>
+          </div>
 
-          <h1 className="mt-6 font-display text-[clamp(2.6rem,7vw,5rem)] font-medium leading-[1.02] tracking-tight text-leaf-950 dark:text-white">
+          <h1 className="mt-7 max-w-3xl text-[clamp(2.55rem,7vw,5.6rem)] font-black leading-[0.96] tracking-[-0.055em] text-slate-950 dark:text-white">
             {t("hero.title1").replace(".", " ")}
-            <br />
-            <span className="italic text-leaf-700 dark:text-leaf-300">{t("hero.title2")}</span>
+            <span className="mt-2 block font-display font-normal italic tracking-[-0.035em] text-leaf-700 dark:text-leaf-300">{t("hero.title2")}</span>
           </h1>
 
-          <p className="mt-7 max-w-xl text-base leading-8 text-leaf-900/70 sm:text-lg dark:text-slate-300">
-            {t("hero.sub")}
-          </p>
+          <p className="mt-7 max-w-xl text-[15px] leading-7 text-slate-600 sm:text-lg sm:leading-8 dark:text-slate-300">{t("hero.sub")}</p>
 
-          <div className="mt-9 flex flex-wrap items-center gap-3">
-            <button
-              onClick={() =>
-                document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })
-              }
-              className="group inline-flex items-center gap-2 rounded-full bg-leaf-700 px-7 py-3.5 text-sm font-semibold text-white shadow-xl shadow-leaf-900/25 transition hover:bg-leaf-600 dark:bg-leaf-500 dark:hover:bg-leaf-400"
-            >
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <a href="#projects" className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-leaf-700 px-6 text-sm font-bold text-white shadow-[0_18px_32px_-16px_rgba(21,128,61,0.75)] transition hover:-translate-y-0.5 hover:bg-leaf-800 dark:bg-leaf-500 dark:hover:bg-leaf-400">
               {t("hero.cta1")}
-              <span className="rtl:rotate-180 transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1">→</span>
-            </button>
-            <button
-              onClick={() =>
-                document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })
-              }
-              className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white/70 px-7 py-3.5 text-sm font-semibold text-slate-700 backdrop-blur transition hover:border-leaf-500 hover:text-leaf-700"
-            >
+              <Arrow className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
+            </a>
+            <a href="#contact" className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 text-sm font-bold text-slate-800 transition hover:border-leaf-300 hover:bg-leaf-50 hover:text-leaf-800 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10">
               {t("hero.cta2")}
-            </button>
+            </a>
+          </div>
+
+          <div className="mt-9 flex items-center gap-4 border-t border-slate-200 pt-6 dark:border-white/10">
+            <div className="flex -space-x-2 rtl:space-x-reverse">
+              {["bg-leaf-200", "bg-earthy-200", "bg-lime-200"].map((tone, index) => (
+                <span key={tone} className={`grid h-9 w-9 place-items-center rounded-full border-2 border-white text-[10px] font-extrabold text-leaf-900 dark:border-[#09110d] ${tone}`}>{index + 1}</span>
+              ))}
+            </div>
+            <p className="max-w-xs text-xs font-semibold leading-5 text-slate-500 dark:text-slate-400">{t("about.mission")}: {t("about.missiontext")}</p>
           </div>
         </div>
 
-        {/* stats strip */}
-        <div className="mt-16 grid grid-cols-2 gap-px overflow-hidden rounded-3xl border border-slate-300/40 bg-slate-300/40 dark:border-white/10 dark:bg-white/10 lg:grid-cols-4">
-          {heroStats.map((s) => (
-            <div
-              key={s.key}
-              className="bg-sand-100/80 px-5 py-6 text-center backdrop-blur dark:bg-[#0e1713]/80"
-            >
-              <div className="font-display text-3xl font-medium text-leaf-700 dark:text-leaf-300">
-                {s.value}
+        <div className="order-1 lg:order-2">
+          <div className="relative mx-auto max-w-2xl">
+            <div className="absolute -inset-4 -rotate-2 rounded-[2.5rem] bg-leaf-100 dark:bg-leaf-500/10 sm:-inset-6" />
+            <div className="hero-frame relative aspect-[4/4.45] overflow-hidden rounded-[2rem] bg-leaf-100 shadow-[0_30px_80px_-36px_rgba(15,23,42,0.55)] sm:rounded-[2.75rem]">
+              <Image src={heroImage} alt={t("brand.full")} fill priority sizes="(max-width: 1023px) 92vw, 52vw" className="object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-leaf-950/55 via-transparent to-white/5" />
+              <div className="absolute inset-x-5 bottom-5 flex items-end justify-between gap-4 sm:inset-x-7 sm:bottom-7">
+                <div className="max-w-[70%] text-white">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-lime-200">{t("brand.tag")}</p>
+                  <p className="mt-2 text-sm font-semibold leading-6 sm:text-base">{t("brand.full")}</p>
+                </div>
+                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/25 bg-white/15 text-center text-sm font-black text-white backdrop-blur-md sm:h-16 sm:w-16">{establishedYear}</span>
               </div>
-              <div className="mt-1.5 text-[11.5px] font-medium leading-5 text-earthy-700/80 dark:text-slate-400">
-                {t(s.key)}
+            </div>
+            <div className="absolute -bottom-5 -start-2 hidden rounded-2xl border border-white/70 bg-white/90 px-5 py-4 shadow-xl backdrop-blur sm:block dark:border-white/10 dark:bg-[#112018]/90">
+              <div className="flex items-center gap-3">
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-leaf-100 text-leaf-800 dark:bg-leaf-400/10 dark:text-leaf-300">
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M4 20V9l8-5 8 5v11M4 20h16M9 20v-6h6v6" /></svg>
+                </span>
+                <div><div className="text-xl font-black text-slate-950 dark:text-white">{provinceCount}</div><div className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">{t("stats.provinces")}</div></div>
               </div>
+            </div>
+          </div>
+        </div>
+      </Container>
+
+      <Container>
+        <div className="grid grid-cols-2 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_20px_60px_-42px_rgba(15,23,42,0.5)] dark:border-white/10 dark:bg-white/[0.035] lg:grid-cols-4">
+          {heroStats.map((stat, index) => (
+            <div key={stat.key} className={`px-4 py-6 text-center sm:px-6 sm:py-7 ${index % 2 ? "border-s border-slate-200 dark:border-white/10" : ""} ${index > 1 ? "border-t border-slate-200 dark:border-white/10 lg:border-t-0 lg:border-s" : ""}`}>
+              <div className="text-2xl font-black tracking-tight text-leaf-800 sm:text-3xl dark:text-leaf-300">{stat.value}</div>
+              <div className="mx-auto mt-1.5 max-w-[150px] text-[10px] font-bold uppercase leading-4 tracking-[0.1em] text-slate-500 sm:text-[11px] dark:text-slate-400">{t(stat.key)}</div>
             </div>
           ))}
         </div>
@@ -121,64 +164,45 @@ function Hero() {
   );
 }
 
-/* ============================= ABOUT ============================= */
 function About() {
   const { t } = useI18n();
   const site = useCmsSite();
-  const settings = site?.settings as any;
   const aboutImage = site?.images?.about1 || ABOUT_IMAGE;
   const aboutImage2 = site?.images?.about2 || ABOUT_IMAGE_2;
-  const establishedYear = settings?.company?.establishedYear || "2009";
   const values = ["v1", "v2", "v3", "v4"];
+
   return (
-    <section id="about" className="scroll-mt-24 py-24 sm:py-28">
-      <Container className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
-        <div className="relative">
-          <div className="absolute -inset-4 -z-10 rounded-[2.5rem] bg-earthy-100 dark:bg-white/5" />
-          <img
-            src={aboutImage}
-            alt=""
-            loading="lazy"
-            className="h-[400px] w-full rounded-[2rem] object-cover shadow-2xl sm:h-[480px]"
-          />
-          <img
-            src={aboutImage2}
-            alt=""
-            loading="lazy"
-            className="absolute -bottom-12 end-4 hidden h-56 w-64 rounded-3xl border-[10px] border-sand-100 object-cover shadow-2xl sm:block dark:border-[#0b1310]"
-          />
-          <div className="absolute -start-4 top-8 rounded-2xl bg-leaf-700 px-5 py-4 text-white shadow-xl dark:bg-leaf-500">
-            <div className="font-display text-3xl font-medium">{establishedYear}</div>
-            <div className="text-[10px] uppercase tracking-[0.2em] opacity-80">Est. Kabul, AF</div>
+    <section id="about" className="scroll-mt-28 bg-white py-20 sm:py-28 dark:bg-[#09110d]">
+      <Container className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20 xl:gap-28">
+        <div className="relative mx-auto w-full max-w-xl pb-10 pe-6 sm:pb-16 sm:pe-14">
+          <div className="relative aspect-[5/5.4] overflow-hidden rounded-[2rem] bg-slate-100 sm:rounded-[2.75rem]">
+            <Image src={aboutImage} alt={t("about.kicker")} fill sizes="(max-width: 1023px) 90vw, 45vw" className="object-cover" />
+          </div>
+          <div className="absolute bottom-0 end-0 aspect-[4/3] w-[48%] overflow-hidden rounded-[1.5rem] border-[7px] border-white bg-slate-100 shadow-2xl dark:border-[#09110d] sm:rounded-[2rem] sm:border-[10px]">
+            <Image src={aboutImage2} alt="" fill sizes="(max-width: 640px) 42vw, 250px" className="object-cover" />
+          </div>
+          <div className="absolute -start-2 top-8 max-w-[180px] rounded-2xl bg-leaf-950 px-5 py-4 text-white shadow-xl dark:bg-leaf-700 sm:-start-7 sm:top-12">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-lime-300">{t("about.mission")}</p>
+            <p className="mt-2 text-xs font-semibold leading-5 text-white/85">{t("brand.tag")}</p>
           </div>
         </div>
 
         <div>
           <Eyebrow>{t("about.kicker")}</Eyebrow>
-          <Display className="mt-5">
-            <span className="italic text-leaf-700 dark:text-leaf-300">{t("about.title1i")}</span>{" "}
-            {t("about.title")}
-          </Display>
-          <Lead className="mt-6">{t("about.p1")}</Lead>
+          <Display className="mt-5"><span className="text-leaf-700 dark:text-leaf-300">{t("about.title1i")}</span> {t("about.title")}</Display>
+          <Lead className="mt-7">{t("about.p1")}</Lead>
           <Lead className="mt-4">{t("about.p2")}</Lead>
 
-          <div className="mt-9 grid gap-x-6 gap-y-4 sm:grid-cols-2">
-            {values.map((v) => (
-              <div key={v} className="flex gap-3">
-                <span className="mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-leaf-600/15 text-leaf-700 dark:text-leaf-300">
-                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2">
-                    <path d="m5 12 4 4L19 6" />
-                  </svg>
-                </span>
-                <div>
-                  <h3 className="text-[15px] font-semibold text-leaf-950 dark:text-white">
-                    {t(`about.${v}t`)}
-                  </h3>
-                  <p className="mt-1 text-[13px] leading-6 text-slate-600 dark:text-slate-400">
-                    {t(`about.${v}d`)}
-                  </p>
+          <div className="mt-9 grid gap-3 sm:grid-cols-2">
+            {values.map((value) => (
+              <article key={value} className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 transition hover:border-leaf-200 hover:bg-leaf-50 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-leaf-400/20">
+                <div className="flex gap-3">
+                  <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-leaf-100 text-leaf-800 dark:bg-leaf-400/10 dark:text-leaf-300">
+                    <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg>
+                  </span>
+                  <div><h3 className="text-sm font-extrabold text-slate-900 dark:text-white">{t(`about.${value}t`)}</h3><p className="mt-1.5 text-xs leading-5 text-slate-500 dark:text-slate-400">{t(`about.${value}d`)}</p></div>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         </div>
@@ -187,11 +211,10 @@ function About() {
   );
 }
 
-/* ============================= SERVICES ============================= */
-const SERVICE_ICONS: Record<string, React.ReactNode> = {
-  s1: <path d="M12 21c0-6 3-10 8-12-1 8-4 11-8 12Zm0 0c0-5-2.6-8.6-7.5-10.4C5.2 18 8 21 12 21Zm0 0V9M9 3c1 1.5 2 2.6 3 4 1-1.4 2-2.5 3-4-1 2-2 3.5-3 5-1-1.5-2-3-3-5Z" />,
+const SERVICE_ICONS: Record<string, ReactNode> = {
+  s1: <path d="M12 21c0-6 3-10 8-12-1 8-4 11-8 12Zm0 0c0-5-2.6-8.6-7.5-10.4C5.2 18 8 21 12 21Zm0 0V9" />,
   s2: <path d="M12 3c3.6 4.4 6 7.6 6 10.5A6 6 0 0 1 6 13.5C6 10.6 8.4 7.4 12 3Z" />,
-  s3: <path d="M3 20V9l9-6 9 6v11M3 20h18M7 20v-6h4v6m4 0v-4h2v4M12 3v6" />,
+  s3: <path d="M3 20V9l9-6 9 6v11M3 20h18M7 20v-6h4v6m4 0v-4h2v4" />,
   s4: <path d="M4 11c0-3 2-5 4-5s3 1 4 1 2-1 4-1 4 2 4 5-2 9-8 9-8-6-8-9Zm4-4L6 4m10 3 2-3" />,
   s5: <path d="M3 7l9-4 9 4-9 4-9-4Zm3 5.5V17c0 1.7 2.7 3 6 3s6-1.3 6-3v-4.5M21 7v6" />,
   s6: <path d="M3 8h11v9H3V8Zm11 3h4l3 3v3h-7v-6ZM7 20a1.6 1.6 0 1 0 0-3.2A1.6 1.6 0 0 0 7 20Zm10 0a1.6 1.6 0 1 0 0-3.2A1.6 1.6 0 0 0 17 20Z" />,
@@ -200,41 +223,29 @@ const SERVICE_ICONS: Record<string, React.ReactNode> = {
 function Services() {
   const { t } = useI18n();
   const site = useCmsSite();
-  const services = site?.services?.length
-    ? site.services.map((service, i) => ({ key: `s${i + 1}`, icon: service.icon || `s${i + 1}` }))
-    : ["s1", "s2", "s3", "s4", "s5", "s6"].map((key) => ({ key, icon: key }));
+  const services = site?.services?.length ? site.services.map((service, index) => ({ key: `s${index + 1}`, icon: service.icon || `s${index + 1}` })) : ["s1", "s2", "s3", "s4", "s5", "s6"].map((key) => ({ key, icon: key }));
+
   return (
-    <section id="services" className="scroll-mt-24 bg-sand-200/60 py-24 sm:py-28 dark:bg-[#0e1a13]">
+    <section id="services" className="scroll-mt-28 bg-[#f5f8f5] py-20 sm:py-28 dark:bg-[#0d1711]">
       <Container>
-        <div className="flex flex-col gap-6 md:items-end md:flex-row md:justify-between">
-          <div className="max-w-2xl">
-            <Eyebrow>{t("services.kicker")}</Eyebrow>
-            <Display className="mt-5">{t("services.title")}</Display>
-          </div>
-          <Lead className="md:max-w-xs">{t("services.sub")}</Lead>
+        <div className="grid gap-6 lg:grid-cols-[1fr_0.55fr] lg:items-end">
+          <div><Eyebrow>{t("services.kicker")}</Eyebrow><Display className="mt-5 max-w-3xl">{t("services.title")}</Display></div>
+          <Lead>{t("services.sub")}</Lead>
         </div>
 
-        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {services.map((service, i) => (
-            <div
-              key={service.key}
-              className="group relative overflow-hidden rounded-3xl border border-slate-300/40 bg-sand-100 p-8 transition duration-300 hover:-translate-y-1.5 hover:border-leaf-600/30 hover:shadow-2xl hover:shadow-leaf-900/10 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-leaf-400/20"
-            >
-              <span className="absolute end-5 top-5 font-display text-5xl font-medium text-slate-200/70 transition group-hover:text-leaf-600/20 dark:text-white/10">
-                0{i + 1}
-              </span>
-              <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-leaf-700/10 text-leaf-700 transition group-hover:bg-leaf-700 group-hover:text-white dark:bg-leaf-400/10 dark:text-leaf-300 dark:group-hover:bg-leaf-500 dark:group-hover:text-white">
-                <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                  {SERVICE_ICONS[service.icon] ?? SERVICE_ICONS.s1}
-                </svg>
+        <div className="mt-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {services.map((service, index) => (
+            <article key={service.key} className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-leaf-200 hover:shadow-[0_24px_60px_-36px_rgba(15,23,42,0.45)] sm:p-7 dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-leaf-400/25">
+              <div className="flex items-start justify-between gap-6">
+                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-leaf-100 text-leaf-800 transition group-hover:bg-leaf-700 group-hover:text-white dark:bg-leaf-400/10 dark:text-leaf-300 dark:group-hover:bg-leaf-500 dark:group-hover:text-white">
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{SERVICE_ICONS[service.icon] ?? SERVICE_ICONS.s1}</svg>
+                </span>
+                <span className="text-[11px] font-black tracking-[0.18em] text-slate-300 dark:text-white/15">0{index + 1}</span>
               </div>
-              <h3 className="relative mt-6 text-[17px] font-semibold text-leaf-950 dark:text-white">
-                {t(`${service.key}.t`)}
-              </h3>
-              <p className="relative mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">
-                {t(`${service.key}.d`)}
-              </p>
-            </div>
+              <h3 className="mt-7 text-lg font-extrabold tracking-[-0.02em] text-slate-950 dark:text-white">{t(`${service.key}.t`)}</h3>
+              <p className="mt-3 text-sm leading-7 text-slate-500 dark:text-slate-400">{t(`${service.key}.d`)}</p>
+              <div className="mt-6 h-1 w-10 rounded-full bg-leaf-200 transition-all duration-300 group-hover:w-20 group-hover:bg-leaf-600 dark:bg-leaf-400/20" />
+            </article>
           ))}
         </div>
       </Container>
@@ -242,291 +253,167 @@ function Services() {
   );
 }
 
-/* ============================= PARTNERS ============================= */
 function Partners() {
   const { t } = useI18n();
   const site = useCmsSite();
   const dynamic = site?.partners?.length ? site.partners : null;
   const partnerGroups = dynamic ? {
-    un: dynamic.filter((p) => p.type === "un").map((p) => p.name),
-    ingo: dynamic.filter((p) => p.type === "ingo").map((p) => p.name),
-    nngo: dynamic.filter((p) => ["nngo", "government", "other"].includes(p.type)).map((p) => p.name),
+    un: dynamic.filter((partner) => partner.type === "un").map((partner) => partner.name),
+    ingo: dynamic.filter((partner) => partner.type === "ingo").map((partner) => partner.name),
+    nngo: dynamic.filter((partner) => ["nngo", "government", "other"].includes(partner.type)).map((partner) => partner.name),
   } : fallbackPartners;
   const groups = [
-    { key: "partners.un", items: partnerGroups.un, tone: "border-sky-200/60 text-sky-800 dark:border-sky-400/20 dark:text-sky-200" },
-    { key: "partners.ingo", items: partnerGroups.ingo, tone: "border-leaf-300/60 text-leaf-800 dark:border-leaf-400/20 dark:text-leaf-200" },
-    { key: "partners.nngo", items: partnerGroups.nngo, tone: "border-earthy-300/60 text-earthy-700 dark:border-earthy-400/20 dark:text-earthy-200" },
+    { key: "partners.un", items: partnerGroups.un },
+    { key: "partners.ingo", items: partnerGroups.ingo },
+    { key: "partners.nngo", items: partnerGroups.nngo },
   ];
-  const marquee = [...partnerGroups.un, ...partnerGroups.ingo, ...partnerGroups.nngo];
-  const testimonialKeys = site?.testimonials?.length ? site.testimonials.map((item) => item.key) : ["t1", "t2", "t3"];
+  const testimonials = site?.testimonials?.length ? site.testimonials.map((item) => item.key) : ["t1", "t2", "t3"];
 
   return (
-    <section id="partners" className="scroll-mt-24 py-24 sm:py-28">
+    <section id="partners" className="scroll-mt-28 overflow-hidden bg-leaf-950 py-20 text-white sm:py-28 dark:bg-[#07100a]">
       <Container>
-        <div className="mx-auto max-w-2xl text-center">
-          <Eyebrow>{t("partners.kicker")}</Eyebrow>
-          <Display className="mt-5">{t("partners.title")}</Display>
-          <Lead className="mx-auto mt-6">{t("partners.sub")}</Lead>
-        </div>
-
-        {/* marquee */}
-        <div className="marquee-wrap relative mt-14 overflow-hidden border-y border-slate-300/40 py-5 dark:border-white/10">
-          <div className="pointer-events-none absolute inset-y-0 start-0 z-10 w-20 bg-gradient-to-r from-sand-100 to-transparent dark:from-[#0b1310]" />
-          <div className="pointer-events-none absolute inset-y-0 end-0 z-10 w-20 bg-gradient-to-l from-sand-100 to-transparent dark:from-[#0b1310]" />
-          <div className="animate-marquee flex w-max gap-3" dir="ltr">
-            {[...marquee, ...marquee].map((p, i) => (
-              <span
-                key={i}
-                className="whitespace-nowrap rounded-full border border-slate-300/50 px-5 py-2.5 text-sm font-semibold text-slate-600 dark:border-white/10 dark:text-slate-300"
-              >
-                {p}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-12 grid gap-6 lg:grid-cols-3">
-          {groups.map((g) => (
-            <div
-              key={g.key}
-              className={`rounded-3xl border bg-sand-100 p-7 dark:bg-white/[0.03] ${g.tone}`}
-            >
-              <h3 className="text-xs font-bold uppercase tracking-[0.18em]">{t(g.key)}</h3>
-              <ul className="mt-5 flex flex-wrap gap-2">
-                {g.items.map((it) => (
-                  <li
-                    key={it}
-                    className="rounded-lg bg-white px-3 py-1.5 text-[13px] font-medium text-slate-700 shadow-sm dark:bg-white/5 dark:text-slate-200"
-                  >
-                    {it}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        <p className="mt-6 text-center text-xs text-slate-400">{t("partners.note")}</p>
-
-        {/* testimonials */}
-        <div className="mt-20 grid gap-6 lg:grid-cols-3">
-          {testimonialKeys.map((k) => (
-            <figure
-              key={k}
-              className="relative rounded-3xl border border-slate-300/40 bg-gradient-to-b from-sand-100 to-sand-200/40 p-8 dark:border-white/10 dark:from-white/[0.04] dark:to-white/[0.01]"
-            >
-              <svg viewBox="0 0 24 24" className="mb-4 h-8 w-8 text-leaf-600/40" fill="currentColor">
-                <path d="M10 7H6a3 3 0 0 0-3 3v7h7v-8H6.5A2.5 2.5 0 0 1 10 9.5V7Zm11 0h-4a3 3 0 0 0-3 3v7h7v-8h-3.5a2.5 2.5 0 0 1 2.5-2.5V7Z" />
-              </svg>
-              <blockquote className="text-[15px] italic leading-8 text-slate-700 dark:text-slate-300">
-                “{t(`${k}.q`)}”
-              </blockquote>
-              <figcaption className="mt-6 flex items-center gap-3 border-t border-slate-300/50 pt-4 dark:border-white/10">
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-leaf-700/10 text-sm font-bold text-leaf-700 dark:text-leaf-300">
-                  ✓
-                </span>
-                <span className="text-xs font-semibold text-earthy-700 dark:text-slate-300">
-                  {t(`${k}.a`)}
-                </span>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      </Container>
-    </section>
-  );
-}
-
-/* ============================= CONTACT ============================= */
-function Contact() {
-  const { t } = useI18n();
-  const site = useCmsSite();
-  const [sent, setSent] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [submitError, setSubmitError] = useState("");
-  async function submitContact(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault(); setSending(true); setSent(false); setSubmitError("");
-    const formElement = e.currentTarget;
-    const form = new FormData(formElement); const payload = Object.fromEntries(form.entries());
-    try { const response = await fetch(cmsApiUrl("/api/public/contact"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); const data = await response.json(); if (!response.ok) throw new Error(data.error || "Unable to send message"); formElement.reset(); setSent(true); } catch (error) { setSubmitError(error instanceof Error ? error.message : "Unable to send message"); } finally { setSending(false); }
-  }
-
-  const field =
-    "w-full rounded-2xl border border-slate-300/60 bg-sand-100 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-leaf-600 focus:ring-4 focus:ring-leaf-600/10 dark:border-white/10 dark:bg-white/5 dark:text-white";
-
-  const info = [
-    {
-      k: "contact.address",
-      v: "contact.addressv",
-      icon: "M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z",
-    },
-    {
-      k: "contact.phone",
-      raw: [site?.contact?.phonePrimary, site?.contact?.phoneSecondary].filter(Boolean).join(" / ") || "+93 700 123 456 / +93 780 987 654",
-      icon: "M5 4h4l2 5-2.5 1.5a12 12 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2.2 2A16 16 0 0 1 3 6.2 2 2 0 0 1 5 4Z",
-    },
-    {
-      k: "contact.email2",
-      raw: [site?.contact?.emailGeneral, site?.contact?.emailTenders].filter(Boolean).join(" / ") || "info@tabiatgran.af / tenders@tabiatgran.af",
-      icon: "M3 6h18v12H3zM3 7l9 6 9-6",
-    },
-    {
-      k: "contact.hours",
-      v: "contact.hoursv",
-      icon: "M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
-    },
-    {
-      k: "contact.offices",
-      v: "contact.officesv",
-      icon: "M4 21V8l8-5 8 5v13M9 21v-6h6v6",
-    },
-  ];
-
-  return (
-    <section id="contact" className="scroll-mt-24 bg-sand-200/60 py-24 sm:py-28 dark:bg-[#0e1a13]">
-      <Container>
-        <div className="mx-auto max-w-2xl text-center">
-          <Eyebrow>{t("contact.kicker")}</Eyebrow>
-          <Display className="mt-5">{t("contact.title")}</Display>
-          <Lead className="mx-auto mt-6">{t("contact.sub")}</Lead>
-        </div>
-
-        <div className="mt-16 grid gap-8 lg:grid-cols-5">
-          <div className="space-y-3 lg:col-span-2">
-            {info.map((i) => (
-              <div
-                key={i.k}
-                className="flex items-center gap-4 rounded-2xl border border-slate-300/40 bg-sand-100 p-4 dark:border-white/10 dark:bg-white/[0.03]"
-              >
-                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-leaf-700/10 text-leaf-700 dark:bg-leaf-400/10 dark:text-leaf-300">
-                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-                    <path d={i.icon} />
-                  </svg>
-                </div>
-                <div className="min-w-0">
-                  <div className="text-[10.5px] font-bold uppercase tracking-[0.16em] text-earthy-700/70 dark:text-slate-500">
-                    {t(i.k)}
-                  </div>
-                  <div className="mt-0.5 truncate text-sm font-medium text-slate-800 dark:text-slate-200" dir={i.raw ? "ltr" : undefined}>
-                    {i.raw ?? t(i.v)}
-                  </div>
-                </div>
+        <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+          <div><Eyebrow inverse>{t("partners.kicker")}</Eyebrow><Display inverse className="mt-5">{t("partners.title")}</Display><p className="mt-6 max-w-xl text-sm leading-7 text-white/65 sm:text-base">{t("partners.sub")}</p></div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {groups.map((group) => (
+              <div key={group.key} className="rounded-3xl border border-white/10 bg-white/[0.055] p-5 backdrop-blur-sm">
+                <h3 className="text-[10px] font-extrabold uppercase tracking-[0.17em] text-lime-300">{t(group.key)}</h3>
+                <ul className="mt-4 space-y-2.5">
+                  {group.items.slice(0, 8).map((item) => <li key={item} className="border-b border-white/[0.07] pb-2.5 text-xs font-semibold leading-5 text-white/75 last:border-0">{item}</li>)}
+                </ul>
               </div>
             ))}
           </div>
+        </div>
 
-          <form
-            onSubmit={submitContact}
-            className="rounded-3xl border border-slate-300/40 bg-sand-100 p-7 sm:p-9 lg:col-span-3 dark:border-white/10 dark:bg-white/[0.03]"
-          >
-            <div className="grid gap-4 sm:grid-cols-2">
-              <input required name="name" placeholder={t("contact.name")} className={field} />
-              <input required name="email" type="email" placeholder={t("contact.email")} className={field} />
-              <input name="organization" placeholder={t("contact.org")} className={field} />
-              <input name="subject" placeholder={t("contact.subject")} className={field} />
-            </div>
-            <textarea rows={5} required minLength={10} name="message" placeholder={t("contact.message")} className={`${field} mt-4 resize-none`} />
-            <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
-            <button
-              type="submit"
-              disabled={sending}
-              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-leaf-700 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-leaf-900/20 transition hover:bg-leaf-600 dark:bg-leaf-500 dark:hover:bg-leaf-400"
-            >
-              {sending ? "…" : t("contact.send")}
-              <span className="rtl:rotate-180">→</span>
-            </button>
-            {sent && (
-              <p className="mt-4 rounded-2xl bg-leaf-600/10 px-4 py-3 text-center text-sm font-semibold text-leaf-800 dark:text-leaf-300">{t("contact.sent")}</p>
-            )}
-            {submitError && <p className="mt-4 rounded-2xl bg-red-500/10 px-4 py-3 text-center text-sm font-semibold text-red-700 dark:text-red-300">{submitError}</p>}
-          </form>
+        <div className="mt-16 border-t border-white/10 pt-12">
+          <div className="grid gap-5 lg:grid-cols-3">
+            {testimonials.map((key, index) => (
+              <figure key={key} className="rounded-3xl bg-white p-6 text-slate-800 sm:p-7 dark:bg-white/[0.07] dark:text-white">
+                <div className="flex items-center justify-between"><span className="text-4xl font-black leading-none text-leaf-200 dark:text-leaf-400/30">“</span><span className="text-[10px] font-black tracking-[0.2em] text-slate-300 dark:text-white/20">0{index + 1}</span></div>
+                <blockquote className="mt-3 text-sm font-medium leading-7 text-slate-600 dark:text-slate-200">{t(`${key}.q`)}</blockquote>
+                <figcaption className="mt-5 border-t border-slate-100 pt-4 text-xs font-extrabold text-leaf-800 dark:border-white/10 dark:text-leaf-300">{t(`${key}.a`)}</figcaption>
+              </figure>
+            ))}
+          </div>
+          <p className="mt-6 text-center text-[10px] leading-5 text-white/40">{t("partners.note")}</p>
         </div>
       </Container>
     </section>
   );
 }
 
-/* ============================= FOOTER ============================= */
+function ContactIcon({ path }: { path: string }) {
+  return <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/10 text-lime-300"><svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={path} /></svg></span>;
+}
+
+function Contact() {
+  const { t } = useI18n();
+  const site = useCmsSite();
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [error, setError] = useState("");
+
+  async function submitContact(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setStatus("sending");
+    setError("");
+    const formElement = event.currentTarget;
+    const payload = Object.fromEntries(new FormData(formElement).entries());
+    try {
+      const response = await fetch(cmsApiUrl("/api/public/contact"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error || "Unable to send message");
+      formElement.reset();
+      setStatus("sent");
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Unable to send message");
+      setStatus("error");
+    }
+  }
+
+  const phone = [site?.contact?.phonePrimary, site?.contact?.phoneSecondary].filter(Boolean).join(" / ") || "+93 700 123 456 / +93 780 987 654";
+  const email = [site?.contact?.emailGeneral, site?.contact?.emailTenders].filter(Boolean).join(" / ") || "info@tabiatgran.af / tenders@tabiatgran.af";
+  const information = [
+    { key: "contact.address", value: t("contact.addressv"), path: "M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z", ltr: false },
+    { key: "contact.phone", value: phone, path: "M5 4h4l2 5-2.5 1.5a12 12 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2.2 2A16 16 0 0 1 3 6.2 2 2 0 0 1 5 4Z", ltr: true },
+    { key: "contact.email2", value: email, path: "M3 6h18v12H3zM3 7l9 6 9-6", ltr: true },
+    { key: "contact.hours", value: t("contact.hoursv"), path: "M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z", ltr: false },
+  ];
+  const field = "mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-leaf-500 focus:bg-white focus:ring-4 focus:ring-leaf-500/10 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:border-leaf-400";
+
+  return (
+    <section id="contact" className="scroll-mt-28 bg-[#f5f8f5] py-20 sm:py-28 dark:bg-[#0d1711]">
+      <Container>
+        <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_30px_80px_-52px_rgba(15,23,42,0.5)] dark:border-white/10 dark:bg-[#111d16] sm:rounded-[2.75rem]">
+          <div className="grid lg:grid-cols-[0.82fr_1.18fr]">
+            <div className="relative overflow-hidden bg-leaf-900 p-6 text-white sm:p-10 lg:p-12">
+              <div className="pointer-events-none absolute -end-24 -top-24 h-64 w-64 rounded-full border-[45px] border-white/[0.04]" />
+              <div className="relative"><Eyebrow inverse>{t("contact.kicker")}</Eyebrow><h2 className="mt-5 text-[clamp(2rem,5vw,3.6rem)] font-black leading-[1.02] tracking-[-0.04em]">{t("contact.title")}</h2><p className="mt-6 text-sm leading-7 text-white/65">{t("contact.sub")}</p></div>
+              <div className="relative mt-10 space-y-5">
+                {information.map((item) => (
+                  <div key={item.key} className="flex gap-3.5"><ContactIcon path={item.path} /><div className="min-w-0"><div className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-white/45">{t(item.key)}</div><div className="mt-1 break-words text-sm font-semibold leading-6 text-white/85" dir={item.ltr ? "ltr" : undefined}>{item.value}</div></div></div>
+                ))}
+              </div>
+            </div>
+
+            <form onSubmit={submitContact} className="p-6 sm:p-10 lg:p-12">
+              <div className="grid gap-5 sm:grid-cols-2">
+                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200">{t("contact.name")}<input required name="name" autoComplete="name" placeholder={t("contact.name")} className={field} /></label>
+                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200">{t("contact.email")}<input required name="email" type="email" autoComplete="email" placeholder={t("contact.email")} className={field} /></label>
+                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200">{t("contact.org")}<input name="organization" autoComplete="organization" placeholder={t("contact.org")} className={field} /></label>
+                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200">{t("contact.subject")}<input name="subject" placeholder={t("contact.subject")} className={field} /></label>
+              </div>
+              <label className="mt-5 block text-xs font-extrabold text-slate-700 dark:text-slate-200">{t("contact.message")}<textarea rows={5} required minLength={10} name="message" placeholder={t("contact.message")} className={`${field} resize-none`} /></label>
+              <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+              <button type="submit" disabled={status === "sending"} className="group mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-leaf-700 px-6 text-sm font-extrabold text-white transition hover:bg-leaf-800 disabled:cursor-wait disabled:opacity-60 dark:bg-leaf-500 dark:hover:bg-leaf-400">
+                {status === "sending" ? "…" : t("contact.send")}<Arrow className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
+              </button>
+              <div aria-live="polite">
+                {status === "sent" ? <p className="mt-4 rounded-xl bg-leaf-50 px-4 py-3 text-center text-sm font-bold text-leaf-800 dark:bg-leaf-400/10 dark:text-leaf-300">{t("contact.sent")}</p> : null}
+                {status === "error" ? <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-center text-sm font-bold text-red-700 dark:bg-red-400/10 dark:text-red-300">{error}</p> : null}
+              </div>
+            </form>
+          </div>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
 function Footer() {
   const { t } = useI18n();
   const site = useCmsSite();
-  const footerPhone = site?.contact?.phonePrimary || "+93 700 123 456";
-  const footerEmail = site?.contact?.emailGeneral || "info@tabiatgran.af";
+  const phone = site?.contact?.phonePrimary || "+93 700 123 456";
+  const email = site?.contact?.emailGeneral || "info@tabiatgran.af";
   const links = ["about", "services", "projects", "partners", "contact"];
+
   return (
-    <footer className="border-t border-slate-300/40 bg-sand-100 py-16 dark:border-white/10 dark:bg-[#0b1310]">
-      <Container className="grid gap-10 lg:grid-cols-4">
-        <div className="lg:col-span-2">
-          <div className="font-display text-xl font-semibold text-leaf-800 dark:text-leaf-200">
-            {t("brand.full")}
-          </div>
-          <p className="mt-4 max-w-md text-sm leading-7 text-slate-600 dark:text-slate-400">
-            {t("footer.about")}
-          </p>
-          <p className="mt-5 text-xs text-slate-400">{t("footer.reg")}</p>
+    <footer className="border-t border-slate-200 bg-white py-12 dark:border-white/10 dark:bg-[#09110d] sm:py-16">
+      <Container>
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.3fr_0.7fr_0.8fr]">
+          <div><div className="text-xl font-black tracking-[-0.03em] text-slate-950 dark:text-white">{t("brand.full")}</div><p className="mt-4 max-w-lg text-sm leading-7 text-slate-500 dark:text-slate-400">{t("footer.about")}</p><p className="mt-4 text-[11px] font-semibold leading-5 text-slate-400">{t("footer.reg")}</p></div>
+          <div><h3 className="text-[10px] font-black uppercase tracking-[0.18em] text-leaf-800 dark:text-leaf-300">{t("footer.links")}</h3><ul className="mt-5 grid grid-cols-2 gap-3 text-sm font-semibold text-slate-500 dark:text-slate-400 md:grid-cols-1">{links.map((link) => <li key={link}><a href={`#${link}`} className="transition hover:text-leaf-800 dark:hover:text-leaf-300">{t(`nav.${link}`)}</a></li>)}</ul></div>
+          <div><h3 className="text-[10px] font-black uppercase tracking-[0.18em] text-leaf-800 dark:text-leaf-300">{t("footer.contact")}</h3><ul className="mt-5 space-y-3 text-sm font-semibold leading-6 text-slate-500 dark:text-slate-400"><li>{t("contact.addressv")}</li><li dir="ltr">{phone}</li><li dir="ltr">{email}</li></ul></div>
         </div>
-
-        <div>
-          <h4 className="text-xs font-bold uppercase tracking-[0.18em] text-earthy-700 dark:text-slate-300">
-            {t("footer.links")}
-          </h4>
-          <ul className="mt-5 space-y-2.5 text-sm text-slate-600 dark:text-slate-400">
-            {links.map((l) => (
-              <li key={l}>
-                <button
-                  onClick={() => document.getElementById(l)?.scrollIntoView({ behavior: "smooth" })}
-                  className="transition hover:text-leaf-700 dark:hover:text-leaf-300"
-                >
-                  {t(`nav.${l}`)}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="text-xs font-bold uppercase tracking-[0.18em] text-earthy-700 dark:text-slate-300">
-            {t("footer.contact")}
-          </h4>
-          <ul className="mt-5 space-y-2.5 text-sm text-slate-600 dark:text-slate-400">
-            <li>{t("contact.addressv")}</li>
-            <li dir="ltr">{footerPhone}</li>
-            <li dir="ltr">{footerEmail}</li>
-          </ul>
-        </div>
-      </Container>
-
-      <Container className="mt-12 border-t border-slate-300/40 pt-7 text-center text-xs text-slate-400 dark:border-white/10">
-        © {new Date().getFullYear()} {t("brand.full")}. {t("footer.rights")}
+        <div className="mt-10 flex flex-col gap-3 border-t border-slate-200 pt-6 text-[11px] font-semibold text-slate-400 dark:border-white/10 sm:flex-row sm:items-center sm:justify-between"><span>© {new Date().getFullYear()} {t("brand.full")}. {t("footer.rights")}</span><a href="#home" className="text-leaf-700 hover:text-leaf-900 dark:text-leaf-300">{t("nav.home")} ↑</a></div>
       </Container>
     </footer>
   );
 }
 
-/* ============================= SITE ============================= */
 function Site() {
   const { theme, toggle } = useTheme();
   return (
-    <div className="min-h-screen bg-sand-100 font-sans text-slate-800 dark:bg-[#0b1310] dark:text-slate-200">
+    <div className="min-h-screen overflow-x-clip bg-white text-slate-800 dark:bg-[#09110d] dark:text-slate-200">
+      <a href="#main-content" className="sr-only z-[100] rounded-lg bg-white px-4 py-3 font-bold text-slate-900 focus:not-sr-only focus:fixed focus:start-4 focus:top-4">Skip to content</a>
       <SeoSync />
       <Header theme={theme} toggleTheme={toggle} />
-      <main>
-        <Hero />
-        <About />
-        <Services />
-        <Projects />
-        <Partners />
-        <Contact />
-      </main>
+      <main id="main-content"><Hero /><About /><Services /><Projects /><Partners /><Contact /></main>
       <Footer />
     </div>
   );
 }
 
 export default function App() {
-  return (
-    <I18nProvider>
-      <Site />
-    </I18nProvider>
-  );
+  return <I18nProvider><Site /></I18nProvider>;
 }
