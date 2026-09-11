@@ -110,7 +110,7 @@ function Hero() {
 
       <Container className="relative pb-8 pt-3 sm:pt-5 lg:pb-10">
         <div
-          className="hero-project-slider liquid-image relative isolate mx-auto min-h-[410px] max-w-[1240px] overflow-hidden rounded-[1.5rem] bg-leaf-950 text-white sm:min-h-[470px] sm:rounded-[2rem] lg:min-h-[520px] lg:rounded-[2.4rem]"
+          className="hero-project-slider liquid-image relative isolate mx-auto min-h-[390px] max-w-[1180px] overflow-hidden rounded-[1.5rem] bg-leaf-950 text-white sm:min-h-[430px] sm:rounded-[2rem] lg:min-h-[480px] lg:rounded-[2.4rem]"
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
           onFocusCapture={() => setPaused(true)}
@@ -134,7 +134,7 @@ function Hero() {
           <div className="absolute inset-0 bg-gradient-to-r from-[#061a10]/78 via-[#061a10]/52 to-[#061a10]/30 rtl:bg-gradient-to-l" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#04120b]/72 via-transparent to-black/25" />
 
-          <div className="relative z-10 flex min-h-[410px] flex-col p-4 sm:min-h-[470px] sm:p-6 lg:min-h-[520px] lg:p-8">
+          <div className="relative z-10 flex min-h-[390px] flex-col p-4 sm:min-h-[430px] sm:p-6 lg:min-h-[480px] lg:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="liquid-dark-card inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-[0.12em] text-lime-200 sm:text-[10px]">
                 <span className="h-2 w-2 rounded-full bg-lime-300 shadow-[0_0_0_4px_rgba(190,242,100,0.14)]" />
@@ -149,7 +149,7 @@ function Hero() {
               <div className="flex flex-wrap items-center justify-center gap-2 text-[9px] font-black uppercase tracking-[0.14em] text-lime-200 sm:text-[11px]">
                 <span>{activeProject.donor}</span><span aria-hidden="true">•</span><span dir="ltr">{activeProject.year}</span>
               </div>
-              <h1 className="localized-title mt-3 max-w-3xl text-[clamp(1.75rem,4.4vw,3.5rem)] font-black leading-[1.05] tracking-[-0.035em] text-white sm:mt-4">
+              <h1 className="localized-title mt-3 max-w-3xl text-[clamp(1.6rem,3.8vw,3rem)] font-black leading-[1.08] tracking-[-0.03em] text-white sm:mt-4">
                 {activeProject.title[lang]}
               </h1>
               <p className="mt-3 line-clamp-2 max-w-2xl text-xs font-medium leading-5 text-white/80 sm:mt-4 sm:text-sm sm:leading-6">{activeProject.short[lang]}</p>
