@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Header from "./components/Header";
 import Projects from "./components/Projects";
-import { Container, Display, Eyebrow, Lead } from "./components/ui";
+import { Container, Display, Lead } from "./components/ui";
 import { I18nProvider, useI18n } from "./i18n";
 import { ABOUT_IMAGE, ABOUT_IMAGE_2, partners as fallbackPartners, projects as fallbackProjects, stats as fallbackStats } from "./data";
 import { cmsApiUrl, useCmsProjects, useCmsSite } from "./cms";
@@ -104,13 +104,10 @@ function Hero() {
   const showSlide = (index: number) => setActive((index + slides.length) % slides.length);
 
   return (
-    <section id="home" className="liquid-section relative overflow-hidden pb-8 pt-[88px] sm:pb-10 md:pt-[108px]">
-      <div className="site-grid pointer-events-none absolute inset-0 opacity-55 dark:opacity-20" />
-      <div className="pointer-events-none absolute -start-28 top-40 h-72 w-72 rounded-full bg-lime-200/40 blur-3xl dark:bg-leaf-500/10" />
-
-      <Container className="relative pb-8 pt-3 sm:pt-5 lg:pb-10">
+    <section id="home" className="vd-hero-section">
+      <Container>
         <div
-          className="hero-project-slider liquid-image relative isolate mx-auto min-h-[390px] max-w-[1180px] overflow-hidden rounded-[1.5rem] bg-leaf-950 text-white sm:min-h-[430px] sm:rounded-[2rem] lg:min-h-[480px] lg:rounded-[2.4rem]"
+          className="vd-hero hero-project-slider"
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
           onFocusCapture={() => setPaused(true)}
@@ -131,41 +128,41 @@ function Hero() {
               </div>
             );
           })}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#061a10]/78 via-[#061a10]/52 to-[#061a10]/30 rtl:bg-gradient-to-l" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#04120b]/72 via-transparent to-black/25" />
+          <div className="vd-hero-shade" />
 
-          <div className="relative z-10 flex min-h-[390px] flex-col p-4 sm:min-h-[430px] sm:p-6 lg:min-h-[480px] lg:p-8">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="liquid-dark-card inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-[0.12em] text-lime-200 sm:text-[10px]">
-                <span className="h-2 w-2 rounded-full bg-lime-300 shadow-[0_0_0_4px_rgba(190,242,100,0.14)]" />
+          <div className="vd-hero-content">
+            <div className="vd-hero-topline">
+              <div className="vd-hero-badge">
+                <span />
                 {t("hero.badge")}
               </div>
-              <span className="liquid-dark-card rounded-full px-3 py-1.5 text-[9px] font-black tracking-[0.14em] text-white/80 sm:text-[10px]" dir="ltr">
+              <span className="vd-hero-count" dir="ltr">
                 {String(active + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
               </span>
             </div>
 
-            <div className="my-auto flex flex-col items-center px-3 py-7 text-center sm:px-12 sm:py-8">
-              <div className="flex flex-wrap items-center justify-center gap-2 text-[9px] font-black uppercase tracking-[0.14em] text-lime-200 sm:text-[11px]">
+            <div className="vd-hero-copy">
+              <div className="vd-hero-meta">
                 <span>{activeProject.donor}</span><span aria-hidden="true">•</span><span dir="ltr">{activeProject.year}</span>
               </div>
-              <h1 className="localized-title mt-3 max-w-3xl text-[clamp(1.6rem,3.8vw,3rem)] font-black leading-[1.08] tracking-[-0.03em] text-white sm:mt-4">
+              <h1 className="localized-title">
                 {activeProject.title[lang]}
               </h1>
-              <p className="mt-3 line-clamp-2 max-w-2xl text-xs font-medium leading-5 text-white/80 sm:mt-4 sm:text-sm sm:leading-6">{activeProject.short[lang]}</p>
-              <div className="mt-5 flex flex-wrap justify-center gap-2.5 sm:mt-6">
-                <a href="#projects" className="liquid-primary group inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-5 text-xs font-bold text-white transition hover:-translate-y-0.5 sm:text-sm">
+              <p>{activeProject.short[lang]}</p>
+              <div className="vd-hero-actions">
+                <a href="#projects" className="vd-solid-button group">
                   {t("hero.cta1")}
                   <Arrow className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
                 </a>
-                <a href="#contact" className="liquid-dark-card inline-flex min-h-10 items-center justify-center rounded-xl px-5 text-xs font-bold text-white transition hover:bg-white/15 sm:text-sm">
+                <a href="#contact" className="vd-ghost-button">
                   {t("hero.cta2")}
                 </a>
               </div>
             </div>
 
-            <div className="flex items-center justify-center">
-              <div className="flex items-center gap-1.5" role="tablist" aria-label={t("projects.gallery")}>
+            <div className="vd-hero-footer">
+              <span className="vd-scroll-note">{t("hero.scroll")}</span>
+              <div className="vd-hero-dots" role="tablist" aria-label={t("projects.gallery")}>
                 {slides.map((project, index) => (
                   <button
                     type="button"
@@ -181,21 +178,19 @@ function Hero() {
             </div>
           </div>
 
-          <button type="button" onClick={() => showSlide(active - 1)} aria-label={`${t("projects.gallery")} ${active}`} className="liquid-dark-card absolute start-3 top-1/2 z-20 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-xl text-white transition hover:bg-white/20 sm:start-5 sm:h-10 sm:w-10">
+          <button type="button" onClick={() => showSlide(active - 1)} aria-label={`${t("projects.gallery")} ${active}`} className="vd-slider-arrow is-prev">
             <Arrow className="rotate-180 rtl:rotate-0" />
           </button>
-          <button type="button" onClick={() => showSlide(active + 1)} aria-label={`${t("projects.gallery")} ${active + 2}`} className="liquid-dark-card absolute end-3 top-1/2 z-20 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-xl text-white transition hover:bg-white/20 sm:end-5 sm:h-10 sm:w-10">
+          <button type="button" onClick={() => showSlide(active + 1)} aria-label={`${t("projects.gallery")} ${active + 2}`} className="vd-slider-arrow is-next">
             <Arrow className="rtl:rotate-180" />
           </button>
         </div>
-      </Container>
 
-      <Container>
-        <div className="glass-surface grid grid-cols-2 overflow-hidden rounded-3xl lg:grid-cols-4">
+        <div className="vd-stat-strip">
           {heroStats.map((stat, index) => (
-            <div key={stat.key} className={`px-4 py-6 text-center sm:px-6 sm:py-7 ${index % 2 ? "border-s border-slate-200 dark:border-white/10" : ""} ${index > 1 ? "border-t border-slate-200 dark:border-white/10 lg:border-t-0 lg:border-s" : ""}`}>
-              <div className="text-2xl font-black tracking-tight text-leaf-800 sm:text-3xl dark:text-leaf-300">{stat.value}</div>
-              <div className="mx-auto mt-1.5 max-w-[150px] text-[10px] font-bold uppercase leading-4 tracking-[0.1em] text-slate-500 sm:text-[11px] dark:text-slate-400">{t(stat.key)}</div>
+            <div key={stat.key} className="vd-stat">
+              <strong>{stat.value}</strong>
+              <span>{t(stat.key)}</span>
             </div>
           ))}
         </div>
@@ -212,39 +207,43 @@ function About() {
   const values = ["v1", "v2", "v3", "v4"];
 
   return (
-    <section id="about" className="liquid-section scroll-mt-28 py-20 sm:py-28">
-      <Container className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20 xl:gap-28">
-        <div className="relative mx-auto w-full max-w-xl pb-10 pe-6 sm:pb-16 sm:pe-14">
-          <div className="liquid-image relative aspect-[5/5.4] overflow-hidden rounded-[2rem] bg-slate-100 sm:rounded-[2.75rem]">
-            <Image src={aboutImage} alt={t("about.kicker")} fill sizes="(max-width: 1023px) 90vw, 45vw" className="object-cover" />
-          </div>
-          <div className="liquid-image absolute bottom-0 end-0 aspect-[4/3] w-[48%] overflow-hidden rounded-[1.5rem] border-[7px] border-white bg-slate-100 shadow-2xl dark:border-[#09110d] sm:rounded-[2rem] sm:border-[10px]">
-            <Image src={aboutImage2} alt="" fill sizes="(max-width: 640px) 42vw, 250px" className="object-cover" />
-          </div>
-          <div className="liquid-dark-card absolute -start-2 top-8 max-w-[180px] rounded-2xl bg-leaf-950/80 px-5 py-4 text-white shadow-xl sm:-start-7 sm:top-12">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-lime-300">{t("about.mission")}</p>
-            <p className="mt-2 text-xs font-semibold leading-5 text-white/85">{t("brand.tag")}</p>
+    <section id="about" className="vd-section scroll-mt-28">
+      <Container>
+        <div className="vd-section-heading">
+          <span>01 / {t("about.kicker")}</span>
+          <div>
+            <Display><span className="vd-accent-text">{t("about.title1i")}</span> {t("about.title")}</Display>
+            <Lead>{t("about.p1")}</Lead>
           </div>
         </div>
 
-        <div>
-          <Eyebrow>{t("about.kicker")}</Eyebrow>
-          <Display className="mt-5"><span className="text-leaf-700 dark:text-leaf-300">{t("about.title1i")}</span> {t("about.title")}</Display>
-          <Lead className="mt-7">{t("about.p1")}</Lead>
-          <Lead className="mt-4">{t("about.p2")}</Lead>
+        <div className="vd-about-grid">
+          <div className="vd-about-media">
+            <Image src={aboutImage} alt={t("about.kicker")} fill sizes="(max-width: 1023px) 100vw, 58vw" className="object-cover" />
+            <div className="vd-about-media-copy">
+              <span>{t("about.mission")}</span>
+              <p>{t("about.missiontext")}</p>
+            </div>
+          </div>
 
-          <div className="mt-9 grid gap-3 sm:grid-cols-2">
-            {values.map((value) => (
-              <article key={value} className="glass-card rounded-2xl p-4 transition">
-                <div className="flex gap-3">
-                  <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-leaf-100 text-leaf-800 dark:bg-leaf-400/10 dark:text-leaf-300">
-                    <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg>
-                  </span>
-                  <div><h3 className="text-sm font-extrabold text-slate-900 dark:text-white">{t(`about.${value}t`)}</h3><p className="mt-1.5 text-xs leading-5 text-slate-500 dark:text-slate-400">{t(`about.${value}d`)}</p></div>
+          <div className="vd-values-grid">
+            {values.map((value, index) => (
+              <article key={value}>
+                <div className="vd-value-icon">
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M5 19 19 5M10 5h9v9" /></svg>
                 </div>
+                <h3>{t(`about.${value}t`)}</h3>
+                <p>{t(`about.${value}d`)}</p>
               </article>
             ))}
           </div>
+        </div>
+
+        <div className="vd-about-note">
+          <div className="vd-about-note-image"><Image src={aboutImage2} alt="" fill sizes="(max-width: 767px) 100vw, 34vw" className="object-cover" /></div>
+          <p>{t("about.p2")}</p>
+          <a href="#services" aria-label={t("nav.services")}><Arrow /></a>
         </div>
       </Container>
     </section>
@@ -266,25 +265,23 @@ function Services() {
   const services = site?.services?.length ? site.services.map((service, index) => ({ key: `s${index + 1}`, icon: service.icon || `s${index + 1}` })) : ["s1", "s2", "s3", "s4", "s5", "s6"].map((key) => ({ key, icon: key }));
 
   return (
-    <section id="services" className="liquid-section-tint scroll-mt-28 py-20 sm:py-28">
+    <section id="services" className="vd-section vd-services-section scroll-mt-28">
       <Container>
-        <div className="grid gap-6 lg:grid-cols-[1fr_0.55fr] lg:items-end">
-          <div><Eyebrow>{t("services.kicker")}</Eyebrow><Display className="mt-5 max-w-3xl">{t("services.title")}</Display></div>
-          <Lead>{t("services.sub")}</Lead>
+        <div className="vd-section-heading">
+          <span>02 / {t("services.kicker")}</span>
+          <div><Display>{t("services.title")}</Display><Lead>{t("services.sub")}</Lead></div>
         </div>
 
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="vd-service-list">
           {services.map((service, index) => (
-            <article key={service.key} className="glass-card group relative overflow-hidden rounded-3xl p-6 transition duration-300 hover:-translate-y-1 sm:p-7">
-              <div className="flex items-start justify-between gap-6">
-                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-leaf-100 text-leaf-800 transition group-hover:bg-leaf-700 group-hover:text-white dark:bg-leaf-400/10 dark:text-leaf-300 dark:group-hover:bg-leaf-500 dark:group-hover:text-white">
+            <article key={service.key} className="vd-service-row">
+              <span className="vd-service-number">{String(index + 1).padStart(2, "0")}.</span>
+              <span className="vd-service-icon">
                   <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{SERVICE_ICONS[service.icon] ?? SERVICE_ICONS.s1}</svg>
-                </span>
-                <span className="text-[11px] font-black tracking-[0.18em] text-slate-300 dark:text-white/15">0{index + 1}</span>
-              </div>
-              <h3 className="mt-7 text-lg font-extrabold tracking-[-0.02em] text-slate-950 dark:text-white">{t(`${service.key}.t`)}</h3>
-              <p className="mt-3 text-sm leading-7 text-slate-500 dark:text-slate-400">{t(`${service.key}.d`)}</p>
-              <div className="mt-6 h-1 w-10 rounded-full bg-leaf-200 transition-all duration-300 group-hover:w-20 group-hover:bg-leaf-600 dark:bg-leaf-400/20" />
+              </span>
+              <h3>{t(`${service.key}.t`)}</h3>
+              <p>{t(`${service.key}.d`)}</p>
+              <a href="#contact" aria-label={`${t("nav.contact")}: ${t(`${service.key}.t`)}`}><Arrow /></a>
             </article>
           ))}
         </div>
@@ -310,33 +307,34 @@ function Partners() {
   const testimonials = site?.testimonials?.length ? site.testimonials.map((item) => item.key) : ["t1", "t2", "t3"];
 
   return (
-    <section id="partners" className="liquid-deep scroll-mt-28 overflow-hidden py-20 text-white sm:py-28">
+    <section id="partners" className="vd-section vd-partners-section scroll-mt-28 text-white">
       <Container>
-        <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
-          <div><Eyebrow inverse>{t("partners.kicker")}</Eyebrow><Display inverse className="mt-5">{t("partners.title")}</Display><p className="mt-6 max-w-xl text-sm leading-7 text-white/65 sm:text-base">{t("partners.sub")}</p></div>
-          <div className="grid gap-3 sm:grid-cols-3">
+        <div className="vd-section-heading is-inverse">
+          <span>04 / {t("partners.kicker")}</span>
+          <div><Display inverse>{t("partners.title")}</Display><Lead className="!text-white/65">{t("partners.sub")}</Lead></div>
+        </div>
+        <div className="vd-partners-grid">
             {groups.map((group) => (
-              <div key={group.key} className="liquid-dark-card rounded-3xl p-5">
-                <h3 className="text-[10px] font-extrabold uppercase tracking-[0.17em] text-lime-300">{t(group.key)}</h3>
-                <ul className="mt-4 space-y-2.5">
-                  {group.items.slice(0, 8).map((item) => <li key={item} className="border-b border-white/[0.07] pb-2.5 text-xs font-semibold leading-5 text-white/75 last:border-0">{item}</li>)}
+              <div key={group.key} className="vd-partner-card">
+                <h3>{t(group.key)}</h3>
+                <ul>
+                  {group.items.slice(0, 8).map((item) => <li key={item}>{item}</li>)}
                 </ul>
               </div>
             ))}
-          </div>
         </div>
 
-        <div className="mt-16 border-t border-white/10 pt-12">
-          <div className="grid gap-5 lg:grid-cols-3">
+        <div className="vd-testimonials">
+          <div className="vd-testimonials-grid">
             {testimonials.map((key, index) => (
-              <figure key={key} className="liquid-dark-card rounded-3xl p-6 text-white sm:p-7">
-                <div className="flex items-center justify-between"><span className="text-4xl font-black leading-none text-leaf-200 dark:text-leaf-400/30">“</span><span className="text-[10px] font-black tracking-[0.2em] text-slate-300 dark:text-white/20">0{index + 1}</span></div>
-                <blockquote className="mt-3 text-sm font-medium leading-7 text-white/78">{t(`${key}.q`)}</blockquote>
-                <figcaption className="mt-5 border-t border-white/10 pt-4 text-xs font-extrabold text-lime-300">{t(`${key}.a`)}</figcaption>
+              <figure key={key} className="vd-testimonial-card">
+                <div><span>“</span><small>0{index + 1}</small></div>
+                <blockquote>{t(`${key}.q`)}</blockquote>
+                <figcaption>{t(`${key}.a`)}</figcaption>
               </figure>
             ))}
           </div>
-          <p className="mt-6 text-center text-[10px] leading-5 text-white/40">{t("partners.note")}</p>
+          <p className="vd-partner-note">{t("partners.note")}</p>
         </div>
       </Container>
     </section>
@@ -389,21 +387,21 @@ function Contact() {
   const field = "glass-input mt-2 w-full rounded-2xl px-4 py-3.5 text-base text-slate-900 outline-none transition placeholder:text-slate-400 dark:text-white sm:text-sm";
 
   return (
-    <section id="contact" className="liquid-section-tint scroll-mt-28 py-20 sm:py-28">
+    <section id="contact" className="vd-section vd-contact-section scroll-mt-28">
       <Container>
-        <div className="glass-surface overflow-hidden rounded-[2rem] sm:rounded-[2.75rem]">
-          <div className="grid lg:grid-cols-[0.82fr_1.18fr]">
-            <div className="liquid-deep relative overflow-hidden p-6 text-white sm:p-10 lg:p-12">
+        <div className="vd-contact-shell">
+          <div className="vd-contact-grid">
+            <div className="vd-contact-panel">
               <div className="pointer-events-none absolute -end-24 -top-24 h-64 w-64 rounded-full border-[45px] border-white/[0.04]" />
-              <div className="relative"><Eyebrow inverse>{t("contact.kicker")}</Eyebrow><h2 className="mt-5 text-[clamp(2rem,5vw,3.6rem)] font-black leading-[1.02] tracking-[-0.04em]">{t("contact.title")}</h2><p className="mt-6 text-sm leading-7 text-white/65">{t("contact.sub")}</p></div>
-              <div className="relative mt-10 space-y-5">
+              <div className="relative"><span className="vd-contact-kicker">05 / {t("contact.kicker")}</span><h2>{t("contact.title")}</h2><p>{t("contact.sub")}</p></div>
+              <div className="vd-contact-details">
                 {information.map((item) => (
                   <div key={item.key} className="flex gap-3.5"><ContactIcon path={item.path} /><div className="min-w-0"><div className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-white/45">{t(item.key)}</div><div className="mt-1 break-words text-sm font-semibold leading-6 text-white/85" dir={item.ltr ? "ltr" : undefined}>{item.value}</div></div></div>
                 ))}
               </div>
             </div>
 
-            <form onSubmit={submitContact} className="p-6 sm:p-10 lg:p-12">
+            <form onSubmit={submitContact} className="vd-contact-form">
               <div className="grid gap-5 sm:grid-cols-2">
                 <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200">{t("contact.name")}<input required name="name" autoComplete="name" placeholder={t("contact.name")} className={field} /></label>
                 <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200">{t("contact.email")}<input required name="email" type="email" autoComplete="email" placeholder={t("contact.email")} className={field} /></label>
@@ -434,7 +432,7 @@ function Footer() {
   const links = ["about", "services", "projects", "partners", "contact"];
 
   return (
-    <footer className="glass-footer border-t border-white/60 py-12 dark:border-white/10 sm:py-16">
+    <footer className="vd-footer">
       <Container>
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.3fr_0.7fr_0.8fr]">
           <div><div className="text-xl font-black tracking-[-0.03em] text-slate-950 dark:text-white">{t("brand.full")}</div><p className="mt-4 max-w-lg text-sm leading-7 text-slate-500 dark:text-slate-400">{t("footer.about")}</p><p className="mt-4 text-[11px] font-semibold leading-5 text-slate-400">{t("footer.reg")}</p></div>
@@ -450,7 +448,7 @@ function Footer() {
 function Site() {
   const { theme, toggle } = useTheme();
   return (
-    <div className="liquid-canvas min-h-screen overflow-x-clip text-slate-800 dark:text-slate-200">
+    <div className="liquid-canvas vd-canvas min-h-screen overflow-x-clip text-slate-800 dark:text-slate-200">
       <a href="#main-content" className="sr-only z-[100] rounded-lg bg-white px-4 py-3 font-bold text-slate-900 focus:not-sr-only focus:fixed focus:start-4 focus:top-4">Skip to content</a>
       <SeoSync />
       <Header theme={theme} toggleTheme={toggle} />
