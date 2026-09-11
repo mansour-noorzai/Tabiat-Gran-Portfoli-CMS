@@ -6,8 +6,8 @@ import Header from "./components/Header";
 import Projects from "./components/Projects";
 import { Container, Display, Eyebrow, Lead } from "./components/ui";
 import { I18nProvider, useI18n } from "./i18n";
-import { ABOUT_IMAGE, ABOUT_IMAGE_2, HERO_IMAGE, partners as fallbackPartners, stats as fallbackStats } from "./data";
-import { cmsApiUrl, useCmsSite } from "./cms";
+import { ABOUT_IMAGE, ABOUT_IMAGE_2, partners as fallbackPartners, projects as fallbackProjects, stats as fallbackStats } from "./data";
+import { cmsApiUrl, useCmsProjects, useCmsSite } from "./cms";
 
 type Theme = "light" | "dark";
 
@@ -77,73 +77,114 @@ function Arrow({ className = "" }: { className?: string }) {
 }
 
 function Hero() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const site = useCmsSite();
-  const settings = site?.settings as any;
-  const heroImage = site?.images?.hero || HERO_IMAGE;
+  const projects = useCmsProjects(fallbackProjects);
   const heroStats = site?.stats?.length ? site.stats : fallbackStats;
-  const establishedYear = settings?.company?.establishedYear || "2009";
-  const provinceCount = heroStats.find((stat) => stat.key === "stats.provinces")?.value || "24";
+  const availableSlides = projects
+    .filter((project) => Boolean(project.cover || project.gallery[0]))
+    .slice(0, 5);
+  const slides = availableSlides.length ? availableSlides : fallbackProjects.slice(0, 5);
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const activeProject = slides[active] ?? fallbackProjects[0];
+
+  useEffect(() => {
+    if (active >= slides.length) setActive(0);
+  }, [active, slides.length]);
+
+  useEffect(() => {
+    if (paused || slides.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const interval = window.setInterval(() => {
+      setActive((current) => (current + 1) % slides.length);
+    }, 6000);
+    return () => window.clearInterval(interval);
+  }, [paused, slides.length]);
+
+  const showSlide = (index: number) => setActive((index + slides.length) % slides.length);
 
   return (
-    <section id="home" className="liquid-section relative overflow-hidden pb-10 pt-[104px] sm:pb-14 md:pt-[132px]">
+    <section id="home" className="liquid-section relative overflow-hidden pb-10 pt-[92px] sm:pb-14 md:pt-[120px]">
       <div className="site-grid pointer-events-none absolute inset-0 opacity-55 dark:opacity-20" />
       <div className="pointer-events-none absolute -start-28 top-40 h-72 w-72 rounded-full bg-lime-200/40 blur-3xl dark:bg-leaf-500/10" />
 
-      <Container className="relative grid items-center gap-12 pb-12 pt-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 lg:pb-16 lg:pt-14 xl:gap-24">
-        <div className="order-2 lg:order-1">
-          <div className="glass-control inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-[11px] font-extrabold uppercase tracking-[0.13em] text-leaf-800 dark:text-leaf-200">
-            <span className="h-2 w-2 rounded-full bg-leaf-500 shadow-[0_0_0_4px_rgba(34,197,94,0.12)]" />
-            {t("hero.badge")}
-          </div>
+      <Container className="relative pb-12 pt-5 sm:pt-8 lg:pb-16">
+        <div
+          className="hero-project-slider liquid-image relative isolate min-h-[620px] overflow-hidden rounded-[2rem] bg-leaf-950 text-white sm:min-h-[680px] sm:rounded-[3rem] lg:min-h-[720px]"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+          onFocusCapture={() => setPaused(true)}
+          onBlurCapture={() => setPaused(false)}
+        >
+          {slides.map((project, index) => {
+            const image = project.cover || project.gallery[0];
+            return (
+              <div key={project.id} className={`hero-project-slide absolute inset-0 ${index === active ? "is-active" : ""}`} aria-hidden={index !== active}>
+                <Image
+                  src={image}
+                  alt={index === active ? project.title[lang] : ""}
+                  fill
+                  priority={index === 0}
+                  sizes="(max-width: 1536px) 96vw, 1440px"
+                  className="object-cover"
+                />
+              </div>
+            );
+          })}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#061a10]/95 via-[#061a10]/62 to-[#061a10]/12 rtl:bg-gradient-to-l" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#04120b]/88 via-transparent to-black/15" />
 
-          <h1 className="mt-7 max-w-3xl text-[clamp(2.55rem,7vw,5.6rem)] font-black leading-[0.96] tracking-[-0.055em] text-slate-950 dark:text-white">
-            {t("hero.title1").replace(".", " ")}
-            <span className="mt-2 block font-display font-normal italic tracking-[-0.035em] text-leaf-700 dark:text-leaf-300">{t("hero.title2")}</span>
-          </h1>
-
-          <p className="mt-7 max-w-xl text-[15px] leading-7 text-slate-600 sm:text-lg sm:leading-8 dark:text-slate-300">{t("hero.sub")}</p>
-
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <a href="#projects" className="liquid-primary group inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-6 text-sm font-bold text-white transition hover:-translate-y-0.5">
-              {t("hero.cta1")}
-              <Arrow className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
-            </a>
-            <a href="#contact" className="glass-control inline-flex min-h-12 items-center justify-center rounded-2xl px-6 text-sm font-bold text-slate-800 transition hover:text-leaf-800 dark:text-white">
-              {t("hero.cta2")}
-            </a>
-          </div>
-
-          <div className="mt-9 flex items-center gap-4 border-t border-slate-200 pt-6 dark:border-white/10">
-            <div className="flex -space-x-2 rtl:space-x-reverse">
-              {["bg-leaf-200", "bg-earthy-200", "bg-lime-200"].map((tone, index) => (
-                <span key={tone} className={`grid h-9 w-9 place-items-center rounded-full border-2 border-white text-[10px] font-extrabold text-leaf-900 dark:border-[#09110d] ${tone}`}>{index + 1}</span>
-              ))}
+          <div className="relative z-10 flex min-h-[620px] flex-col justify-between p-5 sm:min-h-[680px] sm:p-9 lg:min-h-[720px] lg:p-14">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="liquid-dark-card inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-[10px] font-extrabold uppercase tracking-[0.13em] text-lime-200 sm:text-[11px]">
+                <span className="h-2 w-2 rounded-full bg-lime-300 shadow-[0_0_0_4px_rgba(190,242,100,0.14)]" />
+                {t("hero.badge")}
+              </div>
+              <span className="liquid-dark-card rounded-full px-3.5 py-2 text-[10px] font-black tracking-[0.16em] text-white/80" dir="ltr">
+                {String(active + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
+              </span>
             </div>
-            <p className="max-w-xs text-xs font-semibold leading-5 text-slate-500 dark:text-slate-400">{t("about.mission")}: {t("about.missiontext")}</p>
-          </div>
-        </div>
 
-        <div className="order-1 lg:order-2">
-          <div className="relative mx-auto max-w-2xl">
-            <div className="absolute -inset-4 -rotate-2 rounded-[2.5rem] bg-leaf-100 dark:bg-leaf-500/10 sm:-inset-6" />
-            <div className="hero-frame liquid-image relative aspect-[4/4.45] overflow-hidden rounded-[2rem] bg-leaf-100 sm:rounded-[2.75rem]">
-              <Image src={heroImage} alt={t("brand.full")} fill priority sizes="(max-width: 1023px) 92vw, 52vw" className="object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-leaf-950/55 via-transparent to-white/5" />
-              <div className="absolute inset-x-5 bottom-5 flex items-end justify-between gap-4 sm:inset-x-7 sm:bottom-7">
-                <div className="max-w-[70%] text-white">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-lime-200">{t("brand.tag")}</p>
-                  <p className="mt-2 text-sm font-semibold leading-6 sm:text-base">{t("brand.full")}</p>
-                </div>
-                <span className="liquid-dark-card grid h-14 w-14 shrink-0 place-items-center rounded-2xl text-center text-sm font-black text-white sm:h-16 sm:w-16">{establishedYear}</span>
+            <div className="max-w-4xl py-10 sm:py-14">
+              <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.16em] text-lime-200 sm:text-xs">
+                <span>{activeProject.donor}</span><span aria-hidden="true">•</span><span dir="ltr">{activeProject.year}</span>
+              </div>
+              <h1 className="localized-title mt-5 max-w-4xl text-[clamp(2.15rem,7vw,5.8rem)] font-black leading-[0.96] tracking-[-0.05em] text-white">
+                {activeProject.title[lang]}
+              </h1>
+              <p className="mt-6 max-w-2xl text-sm font-medium leading-7 text-white/75 sm:text-lg sm:leading-8">{activeProject.short[lang]}</p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <a href="#projects" className="liquid-primary group inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-6 text-sm font-bold text-white transition hover:-translate-y-0.5">
+                  {t("hero.cta1")}
+                  <Arrow className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
+                </a>
+                <a href="#contact" className="liquid-dark-card inline-flex min-h-12 items-center justify-center rounded-2xl px-6 text-sm font-bold text-white transition hover:bg-white/15">
+                  {t("hero.cta2")}
+                </a>
               </div>
             </div>
-            <div className="glass-surface absolute -bottom-5 -start-2 hidden rounded-2xl px-5 py-4 sm:block">
-              <div className="flex items-center gap-3">
-                <span className="grid h-10 w-10 place-items-center rounded-xl bg-leaf-100 text-leaf-800 dark:bg-leaf-400/10 dark:text-leaf-300">
-                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M4 20V9l8-5 8 5v11M4 20h16M9 20v-6h6v6" /></svg>
-                </span>
-                <div><div className="text-xl font-black text-slate-950 dark:text-white">{provinceCount}</div><div className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">{t("stats.provinces")}</div></div>
+
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+              <div className="flex items-center gap-2" role="tablist" aria-label={t("projects.gallery")}>
+                {slides.map((project, index) => (
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={index === active}
+                    aria-label={project.title[lang]}
+                    key={project.id}
+                    onClick={() => showSlide(index)}
+                    className={`hero-project-dot ${index === active ? "is-active" : ""}`}
+                  ><span className="sr-only">{project.title[lang]}</span></button>
+                ))}
+              </div>
+              <div className="flex gap-2 self-end sm:self-auto">
+                <button type="button" onClick={() => showSlide(active - 1)} aria-label={`${t("projects.gallery")} ${active}`} className="liquid-dark-card grid h-12 w-12 place-items-center rounded-2xl text-white transition hover:bg-white/15">
+                  <Arrow className="rotate-180 rtl:rotate-0" />
+                </button>
+                <button type="button" onClick={() => showSlide(active + 1)} aria-label={`${t("projects.gallery")} ${active + 2}`} className="liquid-dark-card grid h-12 w-12 place-items-center rounded-2xl text-white transition hover:bg-white/15">
+                  <Arrow className="rtl:rotate-180" />
+                </button>
               </div>
             </div>
           </div>

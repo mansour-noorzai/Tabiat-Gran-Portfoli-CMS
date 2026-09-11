@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { useI18n } from "../i18n";
 import { projects as fallbackProjects, type Project } from "../data";
 import { useCmsProjects, useCmsSite } from "../cms";
@@ -18,6 +18,7 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
   const { t, lang } = useI18n();
   const images = Array.from(new Set([project.cover, ...project.gallery].filter(Boolean)));
   const [active, setActive] = useState(0);
+  const [galleryPaused, setGalleryPaused] = useState(false);
   const activeImage = images[active] || fallbackCover;
 
   useEffect(() => {
@@ -32,6 +33,16 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
     };
   }, [onClose]);
 
+  useEffect(() => {
+    if (galleryPaused || images.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const interval = window.setInterval(() => {
+      setActive((current) => (current + 1) % images.length);
+    }, 4000);
+    return () => window.clearInterval(interval);
+  }, [galleryPaused, images.length]);
+
+  const showImage = (index: number) => setActive((index + images.length) % images.length);
+
   return (
     <div className="fixed inset-0 z-[70] overflow-y-auto bg-slate-950/75 p-3 backdrop-blur-sm sm:p-6" onClick={onClose} role="presentation">
       <div role="dialog" aria-modal="true" aria-labelledby="project-modal-title" className="glass-popover animate-fade-up relative mx-auto my-3 w-full max-w-5xl overflow-hidden rounded-[1.5rem] sm:my-8 sm:rounded-[2.5rem]" onClick={(event) => event.stopPropagation()}>
@@ -39,16 +50,43 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
           <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
         </button>
 
-        <div className="relative h-64 bg-slate-100 sm:h-96">
-          {activeImage ? <Image src={activeImage} alt={project.title[lang]} fill sizes="(max-width: 1024px) 100vw, 1024px" className="object-cover" /> : null}
+        <div
+          className="project-gallery relative h-64 bg-slate-100 sm:h-96 lg:h-[30rem]"
+          onMouseEnter={() => setGalleryPaused(true)}
+          onMouseLeave={() => setGalleryPaused(false)}
+          onFocusCapture={() => setGalleryPaused(true)}
+          onBlurCapture={() => setGalleryPaused(false)}
+        >
+          {images.length ? images.map((image, index) => (
+            <Image
+              key={image}
+              src={image}
+              alt={index === active ? project.title[lang] : ""}
+              aria-hidden={index !== active}
+              fill
+              sizes="(max-width: 1024px) 100vw, 1024px"
+              className={`project-gallery-slide object-cover ${index === active ? "is-active" : ""}`}
+            />
+          )) : activeImage ? <Image src={activeImage} alt={project.title[lang]} fill sizes="(max-width: 1024px) 100vw, 1024px" className="object-cover" /> : null}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/65 via-transparent to-transparent" />
           <div className="absolute inset-x-5 bottom-5 flex flex-wrap items-center gap-2 sm:inset-x-8 sm:bottom-7"><CategoryBadge category={project.category} /><span className="rounded-full bg-white px-3 py-1.5 text-[10px] font-extrabold text-slate-800">{project.year}</span></div>
+          {images.length > 1 ? (
+            <div className="absolute inset-x-4 top-1/2 z-10 flex -translate-y-1/2 justify-between sm:inset-x-6">
+              <button type="button" onClick={() => showImage(active - 1)} aria-label={`${t("projects.gallery")} ${active || images.length}`} className="liquid-dark-card grid h-11 w-11 place-items-center rounded-2xl text-white transition hover:bg-white/20">
+                <span className="text-xl rtl:rotate-180" aria-hidden="true">‹</span>
+              </button>
+              <button type="button" onClick={() => showImage(active + 1)} aria-label={`${t("projects.gallery")} ${(active + 2) % images.length || images.length}`} className="liquid-dark-card grid h-11 w-11 place-items-center rounded-2xl text-white transition hover:bg-white/20">
+                <span className="text-xl rtl:rotate-180" aria-hidden="true">›</span>
+              </button>
+            </div>
+          ) : null}
+          <span className="liquid-dark-card absolute end-5 top-5 rounded-full px-3 py-1.5 text-[10px] font-black tracking-[0.14em] text-white sm:end-8" dir="ltr">{active + 1} / {Math.max(images.length, 1)}</span>
         </div>
 
         {images.length > 1 ? (
           <div className="flex gap-2 overflow-x-auto border-b border-slate-100 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/[0.025] sm:p-4">
             {images.map((image, index) => (
-              <button type="button" key={image} onClick={() => setActive(index)} aria-label={`${t("projects.gallery")} ${index + 1}`} className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-xl border-2 transition sm:h-20 sm:w-28 ${active === index ? "border-leaf-600" : "border-transparent opacity-60 hover:opacity-100"}`}>
+              <button type="button" key={image} onClick={() => showImage(index)} aria-label={`${t("projects.gallery")} ${index + 1}`} aria-current={active === index ? "true" : undefined} className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-xl border-2 transition sm:h-20 sm:w-28 ${active === index ? "border-leaf-600 opacity-100" : "border-transparent opacity-60 hover:opacity-100"}`}>
                 <Image src={image} alt="" fill sizes="112px" className="object-cover" />
               </button>
             ))}
@@ -81,12 +119,6 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
   );
 }
 
-function cardSpan(index: number) {
-  if (index === 0) return "lg:col-span-7";
-  if (index === 1) return "lg:col-span-5";
-  return "lg:col-span-4";
-}
-
 export default function Projects() {
   const { t, lang } = useI18n();
   const site = useCmsSite();
@@ -112,29 +144,45 @@ export default function Projects() {
           ))}
         </div>
 
-        <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-12">
+        <div className="project-stack mt-9">
           {visibleProjects.map((project, index) => {
             const cover = project.cover || fallbackCover;
-            const featured = index < 2;
             return (
-              <article key={project.id} className={`glass-card group flex min-w-0 flex-col overflow-hidden rounded-3xl transition duration-300 hover:-translate-y-1 ${cardSpan(index)}`}>
-                <div className={`relative overflow-hidden bg-slate-100 ${featured ? "h-64 sm:h-72 lg:h-80" : "h-60"}`}>
-                  {cover ? <Image src={cover} alt={project.title[lang]} fill sizes={featured ? "(max-width: 1023px) 92vw, 58vw" : "(max-width: 1023px) 92vw, 32vw"} className="object-cover transition duration-700 group-hover:scale-105" /> : null}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
-                  <div className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3 sm:inset-x-5 sm:bottom-5"><CategoryBadge category={project.category} /><span className="rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-extrabold text-slate-800 backdrop-blur">{project.year}</span></div>
-                </div>
-                <div className="flex flex-1 flex-col p-5 sm:p-6">
-                  <p className="text-[9px] font-black uppercase tracking-[0.16em] text-leaf-700 dark:text-leaf-300">{project.donor}</p>
-                  <h3 className={`${featured ? "text-xl sm:text-2xl" : "text-lg"} mt-3 min-w-0 font-black leading-tight tracking-[-0.025em] text-slate-950 dark:text-white`}>{project.title[lang]}</h3>
-                  <p className="mt-3 line-clamp-3 flex-1 text-sm leading-7 text-slate-500 dark:text-slate-400">{project.short[lang]}</p>
-                  <div className="mt-5 flex items-center gap-2 border-t border-slate-100 pt-4 text-xs font-semibold text-slate-500 dark:border-white/10 dark:text-slate-400">
-                    <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-leaf-600 dark:text-leaf-300" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z" /><circle cx="12" cy="10" r="2.5" /></svg><span className="truncate">{project.location[lang]}</span>
+              <button
+                key={project.id}
+                type="button"
+                onClick={() => setOpenProject(project)}
+                aria-label={`${t("projects.view")}: ${project.title[lang]}`}
+                style={{ "--stack-index": Math.min(index, 8) } as CSSProperties}
+                className="project-stack-card glass-card group grid w-full min-w-0 overflow-hidden rounded-[2rem] text-start sm:rounded-[2.75rem] lg:grid-cols-[1.05fr_0.95fr]"
+              >
+                <div className="relative min-h-64 overflow-hidden bg-slate-100 sm:min-h-80 lg:min-h-[34rem]">
+                  {cover ? <Image src={cover} alt={project.title[lang]} fill sizes="(max-width: 1023px) 92vw, 52vw" className="object-cover transition duration-700 group-hover:scale-[1.035]" /> : null}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-black/10" />
+                  <div className="absolute inset-x-4 top-4 flex items-center justify-between gap-3 sm:inset-x-6 sm:top-6">
+                    <CategoryBadge category={project.category} />
+                    <span className="liquid-dark-card rounded-full px-3 py-1.5 text-[10px] font-black tracking-[0.14em] text-white" dir="ltr">{String(index + 1).padStart(2, "0")}</span>
                   </div>
-                  <button type="button" onClick={() => setOpenProject(project)} className="liquid-primary mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-5 text-xs font-extrabold text-white transition">
-                    {t("projects.view")}<span className="rtl:rotate-180" aria-hidden="true">→</span>
-                  </button>
+                  <div className="absolute inset-x-4 bottom-4 flex flex-wrap items-center gap-2 sm:inset-x-6 sm:bottom-6">
+                    <span className="liquid-dark-card rounded-full px-3 py-1.5 text-[10px] font-extrabold text-white" dir="ltr">{project.year}</span>
+                    <span className="liquid-dark-card max-w-full truncate rounded-full px-3 py-1.5 text-[10px] font-bold text-white">{project.location[lang]}</span>
+                  </div>
                 </div>
-              </article>
+                <div className="flex min-w-0 flex-col justify-between p-5 sm:p-8 lg:p-10 xl:p-12">
+                  <div>
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <p className="text-[9px] font-black uppercase tracking-[0.16em] text-leaf-700 dark:text-leaf-300">{project.donor}</p>
+                      <span className="text-[10px] font-black tracking-[0.16em] text-slate-300 dark:text-white/20" dir="ltr">{String(index + 1).padStart(2, "0")} / {String(visibleProjects.length).padStart(2, "0")}</span>
+                    </div>
+                    <h3 className="localized-title mt-5 min-w-0 text-[clamp(1.65rem,4vw,3.25rem)] font-black leading-[1.02] tracking-[-0.04em] text-slate-950 dark:text-white">{project.title[lang]}</h3>
+                    <p className="mt-5 line-clamp-3 text-sm leading-7 text-slate-500 sm:text-base sm:leading-8 dark:text-slate-300">{project.short[lang]}</p>
+                  </div>
+                  <div className="mt-8 flex items-center justify-between gap-4 border-t border-slate-200/70 pt-5 dark:border-white/10">
+                    <span className="text-xs font-extrabold text-leaf-700 dark:text-leaf-300">{t("projects.view")}</span>
+                    <span className="liquid-primary grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-lg text-white transition group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" aria-hidden="true">→</span>
+                  </div>
+                </div>
+              </button>
             );
           })}
         </div>
