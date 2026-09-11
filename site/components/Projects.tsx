@@ -5,7 +5,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { useI18n } from "../i18n";
 import { projects as fallbackProjects, type Project } from "../data";
 import { useCmsProjects, useCmsSite } from "../cms";
-import { Container, Display, Eyebrow, Lead } from "./ui";
+import { Container, Display, Lead } from "./ui";
 
 const fallbackCover = fallbackProjects[0]?.cover ?? "";
 
@@ -129,16 +129,16 @@ export default function Projects() {
   const visibleProjects = category === "all" ? projects : projects.filter((project) => project.category === category);
 
   return (
-    <section id="projects" className="liquid-section scroll-mt-28 py-20 sm:py-28">
+    <section id="projects" className="vd-section vd-projects-section scroll-mt-28">
       <Container>
-        <div className="grid gap-6 lg:grid-cols-[1fr_0.65fr] lg:items-end">
-          <div><Eyebrow>{t("projects.kicker")}</Eyebrow><Display className="mt-5 max-w-3xl">{t("projects.title")}</Display></div>
-          <Lead>{t("projects.sub")}</Lead>
+        <div className="vd-section-heading">
+          <span>03 / {t("projects.kicker")}</span>
+          <div><Display>{t("projects.title")}</Display><Lead>{t("projects.sub")}</Lead></div>
         </div>
 
-        <div className="mt-10 flex max-w-full gap-2 overflow-x-auto pb-2 sm:flex-wrap" role="group" aria-label={t("projects.kicker")}>
+        <div className="vd-project-filters" role="group" aria-label={t("projects.kicker")}>
           {categories.map((item) => (
-            <button type="button" key={item} onClick={() => setCategory(item)} aria-pressed={category === item} className={`shrink-0 rounded-2xl px-4 py-2.5 text-xs font-extrabold transition ${category === item ? "liquid-primary text-white" : "glass-control text-slate-600 hover:text-leaf-800 dark:text-slate-300"}`}>
+            <button type="button" key={item} onClick={() => setCategory(item)} aria-pressed={category === item} className={category === item ? "is-active" : ""}>
               {item === "all" ? t("projects.all") : t(`cat.${item}`)}
             </button>
           ))}
@@ -154,32 +154,24 @@ export default function Projects() {
                 onClick={() => setOpenProject(project)}
                 aria-label={`${t("projects.view")}: ${project.title[lang]}`}
                 style={{ "--stack-index": Math.min(index, 8) } as CSSProperties}
-                className="project-stack-card glass-card group grid w-full min-w-0 overflow-hidden rounded-[2rem] text-start sm:rounded-[2.75rem] lg:grid-cols-[1.05fr_0.95fr]"
+                className="project-stack-card vd-project-card group"
               >
-                <div className="relative min-h-64 overflow-hidden bg-slate-100 sm:min-h-80 lg:min-h-[34rem]">
-                  {cover ? <Image src={cover} alt={project.title[lang]} fill sizes="(max-width: 1023px) 92vw, 52vw" className="object-cover transition duration-700 group-hover:scale-[1.035]" /> : null}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-black/10" />
-                  <div className="absolute inset-x-4 top-4 flex items-center justify-between gap-3 sm:inset-x-6 sm:top-6">
+                <div className="vd-project-media">
+                  {cover ? <Image src={cover} alt={project.title[lang]} fill sizes="(max-width: 1023px) 94vw, 66vw" className="object-cover transition duration-700 group-hover:scale-[1.035]" /> : null}
+                  <div className="vd-project-shade" />
+                  <div className="vd-project-topline">
                     <CategoryBadge category={project.category} />
-                    <span className="liquid-dark-card rounded-full px-3 py-1.5 text-[10px] font-black tracking-[0.14em] text-white" dir="ltr">{String(index + 1).padStart(2, "0")}</span>
-                  </div>
-                  <div className="absolute inset-x-4 bottom-4 flex flex-wrap items-center gap-2 sm:inset-x-6 sm:bottom-6">
-                    <span className="liquid-dark-card rounded-full px-3 py-1.5 text-[10px] font-extrabold text-white" dir="ltr">{project.year}</span>
-                    <span className="liquid-dark-card max-w-full truncate rounded-full px-3 py-1.5 text-[10px] font-bold text-white">{project.location[lang]}</span>
+                    <span dir="ltr">{String(index + 1).padStart(2, "0")} / {String(visibleProjects.length).padStart(2, "0")}</span>
                   </div>
                 </div>
-                <div className="flex min-w-0 flex-col justify-between p-5 sm:p-8 lg:p-10 xl:p-12">
-                  <div>
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <p className="text-[9px] font-black uppercase tracking-[0.16em] text-leaf-700 dark:text-leaf-300">{project.donor}</p>
-                      <span className="text-[10px] font-black tracking-[0.16em] text-slate-300 dark:text-white/20" dir="ltr">{String(index + 1).padStart(2, "0")} / {String(visibleProjects.length).padStart(2, "0")}</span>
+                <div className="vd-project-copy">
+                  <div className="vd-project-meta"><span>{project.donor}</span><span dir="ltr">{project.year}</span><span>{project.location[lang]}</span></div>
+                  <div className="vd-project-title-row">
+                    <div>
+                      <h3 className="localized-title">{project.title[lang]}</h3>
+                      <p>{project.short[lang]}</p>
                     </div>
-                    <h3 className="localized-title mt-5 min-w-0 text-[clamp(1.65rem,4vw,3.25rem)] font-black leading-[1.02] tracking-[-0.04em] text-slate-950 dark:text-white">{project.title[lang]}</h3>
-                    <p className="mt-5 line-clamp-3 text-sm leading-7 text-slate-500 sm:text-base sm:leading-8 dark:text-slate-300">{project.short[lang]}</p>
-                  </div>
-                  <div className="mt-8 flex items-center justify-between gap-4 border-t border-slate-200/70 pt-5 dark:border-white/10">
-                    <span className="text-xs font-extrabold text-leaf-700 dark:text-leaf-300">{t("projects.view")}</span>
-                    <span className="liquid-primary grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-lg text-white transition group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" aria-hidden="true">→</span>
+                    <span className="vd-project-arrow" aria-hidden="true">↗</span>
                   </div>
                 </div>
               </button>
