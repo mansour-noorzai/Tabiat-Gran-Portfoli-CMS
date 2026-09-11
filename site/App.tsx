@@ -104,13 +104,13 @@ function Hero() {
   const showSlide = (index: number) => setActive((index + slides.length) % slides.length);
 
   return (
-    <section id="home" className="liquid-section relative overflow-hidden pb-10 pt-[92px] sm:pb-14 md:pt-[120px]">
+    <section id="home" className="liquid-section relative overflow-hidden pb-8 pt-[88px] sm:pb-10 md:pt-[108px]">
       <div className="site-grid pointer-events-none absolute inset-0 opacity-55 dark:opacity-20" />
       <div className="pointer-events-none absolute -start-28 top-40 h-72 w-72 rounded-full bg-lime-200/40 blur-3xl dark:bg-leaf-500/10" />
 
-      <Container className="relative pb-12 pt-5 sm:pt-8 lg:pb-16">
+      <Container className="relative pb-8 pt-3 sm:pt-5 lg:pb-10">
         <div
-          className="hero-project-slider liquid-image relative isolate min-h-[620px] overflow-hidden rounded-[2rem] bg-leaf-950 text-white sm:min-h-[680px] sm:rounded-[3rem] lg:min-h-[720px]"
+          className="hero-project-slider liquid-image relative isolate mx-auto min-h-[410px] max-w-[1240px] overflow-hidden rounded-[1.5rem] bg-leaf-950 text-white sm:min-h-[470px] sm:rounded-[2rem] lg:min-h-[520px] lg:rounded-[2.4rem]"
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
           onFocusCapture={() => setPaused(true)}
@@ -131,41 +131,41 @@ function Hero() {
               </div>
             );
           })}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#061a10]/95 via-[#061a10]/62 to-[#061a10]/12 rtl:bg-gradient-to-l" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#04120b]/88 via-transparent to-black/15" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#061a10]/78 via-[#061a10]/52 to-[#061a10]/30 rtl:bg-gradient-to-l" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#04120b]/72 via-transparent to-black/25" />
 
-          <div className="relative z-10 flex min-h-[620px] flex-col justify-between p-5 sm:min-h-[680px] sm:p-9 lg:min-h-[720px] lg:p-14">
+          <div className="relative z-10 flex min-h-[410px] flex-col p-4 sm:min-h-[470px] sm:p-6 lg:min-h-[520px] lg:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="liquid-dark-card inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-[10px] font-extrabold uppercase tracking-[0.13em] text-lime-200 sm:text-[11px]">
+              <div className="liquid-dark-card inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-[0.12em] text-lime-200 sm:text-[10px]">
                 <span className="h-2 w-2 rounded-full bg-lime-300 shadow-[0_0_0_4px_rgba(190,242,100,0.14)]" />
                 {t("hero.badge")}
               </div>
-              <span className="liquid-dark-card rounded-full px-3.5 py-2 text-[10px] font-black tracking-[0.16em] text-white/80" dir="ltr">
+              <span className="liquid-dark-card rounded-full px-3 py-1.5 text-[9px] font-black tracking-[0.14em] text-white/80 sm:text-[10px]" dir="ltr">
                 {String(active + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
               </span>
             </div>
 
-            <div className="max-w-4xl py-10 sm:py-14">
-              <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.16em] text-lime-200 sm:text-xs">
+            <div className="my-auto flex flex-col items-center px-3 py-7 text-center sm:px-12 sm:py-8">
+              <div className="flex flex-wrap items-center justify-center gap-2 text-[9px] font-black uppercase tracking-[0.14em] text-lime-200 sm:text-[11px]">
                 <span>{activeProject.donor}</span><span aria-hidden="true">•</span><span dir="ltr">{activeProject.year}</span>
               </div>
-              <h1 className="localized-title mt-5 max-w-4xl text-[clamp(2.15rem,7vw,5.8rem)] font-black leading-[0.96] tracking-[-0.05em] text-white">
+              <h1 className="localized-title mt-3 max-w-3xl text-[clamp(1.75rem,4.4vw,3.5rem)] font-black leading-[1.05] tracking-[-0.035em] text-white sm:mt-4">
                 {activeProject.title[lang]}
               </h1>
-              <p className="mt-6 max-w-2xl text-sm font-medium leading-7 text-white/75 sm:text-lg sm:leading-8">{activeProject.short[lang]}</p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <a href="#projects" className="liquid-primary group inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-6 text-sm font-bold text-white transition hover:-translate-y-0.5">
+              <p className="mt-3 line-clamp-2 max-w-2xl text-xs font-medium leading-5 text-white/80 sm:mt-4 sm:text-sm sm:leading-6">{activeProject.short[lang]}</p>
+              <div className="mt-5 flex flex-wrap justify-center gap-2.5 sm:mt-6">
+                <a href="#projects" className="liquid-primary group inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-5 text-xs font-bold text-white transition hover:-translate-y-0.5 sm:text-sm">
                   {t("hero.cta1")}
                   <Arrow className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
                 </a>
-                <a href="#contact" className="liquid-dark-card inline-flex min-h-12 items-center justify-center rounded-2xl px-6 text-sm font-bold text-white transition hover:bg-white/15">
+                <a href="#contact" className="liquid-dark-card inline-flex min-h-10 items-center justify-center rounded-xl px-5 text-xs font-bold text-white transition hover:bg-white/15 sm:text-sm">
                   {t("hero.cta2")}
                 </a>
               </div>
             </div>
 
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-              <div className="flex items-center gap-2" role="tablist" aria-label={t("projects.gallery")}>
+            <div className="flex items-center justify-center">
+              <div className="flex items-center gap-1.5" role="tablist" aria-label={t("projects.gallery")}>
                 {slides.map((project, index) => (
                   <button
                     type="button"
@@ -178,16 +178,15 @@ function Hero() {
                   ><span className="sr-only">{project.title[lang]}</span></button>
                 ))}
               </div>
-              <div className="flex gap-2 self-end sm:self-auto">
-                <button type="button" onClick={() => showSlide(active - 1)} aria-label={`${t("projects.gallery")} ${active}`} className="liquid-dark-card grid h-12 w-12 place-items-center rounded-2xl text-white transition hover:bg-white/15">
-                  <Arrow className="rotate-180 rtl:rotate-0" />
-                </button>
-                <button type="button" onClick={() => showSlide(active + 1)} aria-label={`${t("projects.gallery")} ${active + 2}`} className="liquid-dark-card grid h-12 w-12 place-items-center rounded-2xl text-white transition hover:bg-white/15">
-                  <Arrow className="rtl:rotate-180" />
-                </button>
-              </div>
             </div>
           </div>
+
+          <button type="button" onClick={() => showSlide(active - 1)} aria-label={`${t("projects.gallery")} ${active}`} className="liquid-dark-card absolute start-3 top-1/2 z-20 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-xl text-white transition hover:bg-white/20 sm:start-5 sm:h-10 sm:w-10">
+            <Arrow className="rotate-180 rtl:rotate-0" />
+          </button>
+          <button type="button" onClick={() => showSlide(active + 1)} aria-label={`${t("projects.gallery")} ${active + 2}`} className="liquid-dark-card absolute end-3 top-1/2 z-20 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-xl text-white transition hover:bg-white/20 sm:end-5 sm:h-10 sm:w-10">
+            <Arrow className="rtl:rotate-180" />
+          </button>
         </div>
       </Container>
 
