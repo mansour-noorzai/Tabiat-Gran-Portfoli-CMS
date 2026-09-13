@@ -292,7 +292,7 @@ const PARTNER_DOMAINS: Record<string, string> = {
   "Islamic Relief": "islamic-relief.org",
   "CARE International": "care-international.org",
   DACAAR: "dacaar.org",
-  "AKDN Afghanistan": "akdn.org",
+  "AKDN Afghanistan": "the.akdn",
   CHA: "cha-net.org",
   AREA: "area-org.af",
   ARAA: "araa.org.af",
@@ -300,6 +300,10 @@ const PARTNER_DOMAINS: Record<string, string> = {
   NHLP: "mail.gov.af",
   Afghanaid: "afghanaid.org.uk",
 };
+
+function normalizePartnerName(name: string) {
+  return name.toLocaleLowerCase("en").replace(/[^a-z0-9]+/g, "");
+}
 
 function partnerDomain(partner: PartnerItem) {
   if (partner.websiteUrl) {
@@ -313,10 +317,16 @@ function partnerDomain(partner: PartnerItem) {
 }
 
 function PartnerLogo({ partner, duplicate = false }: { partner: PartnerItem; duplicate?: boolean }) {
-  const [imageFailed, setImageFailed] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
   const domain = partnerDomain(partner);
-  const logo = partner.logo || (domain ? `https://${domain}/favicon.ico` : "");
+  const logoSources = [
+    partner.logo,
+    domain ? `https://www.google.com/s2/favicons?domain_url=${encodeURIComponent(`https://${domain}`)}&sz=128` : "",
+    domain ? `https://icons.duckduckgo.com/ip3/${domain}.ico` : "",
+    domain ? `https://${domain}/favicon.ico` : "",
+  ].filter((source, index, sources): source is string => Boolean(source) && sources.indexOf(source) === index);
+  const [logoIndex, setLogoIndex] = useState(0);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const logo = logoSources[logoIndex] || "";
   const initials = partner.name
     .split(/\s+/)
     .map((part) => part[0])
@@ -328,10 +338,23 @@ function PartnerLogo({ partner, duplicate = false }: { partner: PartnerItem; dup
     <>
       <span className="vd-partner-logo-media">
         <span className={imageLoaded ? "is-hidden" : undefined} aria-hidden="true">{initials}</span>
-        {logo && !imageFailed ? (
+        {logo ? (
           // CMS logos can be hosted on domains outside Next Image's static allowlist.
           // eslint-disable-next-line @next/next/no-img-element
-          <img className={imageLoaded ? "is-loaded" : undefined} src={logo} alt="" width="72" height="72" loading="lazy" onLoad={() => setImageLoaded(true)} onError={() => setImageFailed(true)} />
+          <img
+            className={imageLoaded ? "is-loaded" : undefined}
+            src={logo}
+            alt=""
+            width="72"
+            height="72"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            onLoad={() => setImageLoaded(true)}
+            onError={() => {
+              setImageLoaded(false);
+              setLogoIndex((current) => current + 1);
+            }}
+          />
         ) : null}
       </span>
       <span className="vd-partner-logo-name">{partner.name}</span>
@@ -389,9 +412,28 @@ function Partners() {
   const { t } = useI18n();
   const site = useCmsSite();
   const fallbackItems: PartnerItem[] = (Object.entries(fallbackPartners) as Array<["un" | "ingo" | "nngo", string[]]>).flatMap(([type, names]) =>
-    names.map((name, index) => ({ id: `${type}-${index}`, name, type })),
+    names.map((name, index) => ({
+      id: `${type}-${index}`,
+      name,
+      type,
+      websiteUrl: PARTNER_DOMAINS[name] ? `https://${PARTNER_DOMAINS[name]}` : undefined,
+    })),
   );
-  const partners: PartnerItem[] = site?.partners?.length ? site.partners : fallbackItems;
+  const cmsPartners: PartnerItem[] = site?.partners || [];
+  const matchedCmsIds = new Set<string>();
+  const partners = fallbackItems.map((fallback) => {
+    const fallbackName = normalizePartnerName(fallback.name);
+    const fallbackDomain = partnerDomain(fallback);
+    const match = cmsPartners.find((partner) => {
+      const sameName = normalizePartnerName(partner.name) === fallbackName;
+      const sameDomain = fallbackDomain && partnerDomain(partner) === fallbackDomain;
+      return sameName || sameDomain;
+    });
+    if (!match) return fallback;
+    matchedCmsIds.add(match.id);
+    return { ...fallback, ...match, websiteUrl: match.websiteUrl || fallback.websiteUrl };
+  });
+  partners.push(...cmsPartners.filter((partner) => !matchedCmsIds.has(partner.id)));
   const carouselItems = [...partners, ...partners];
 
   return (
