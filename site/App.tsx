@@ -200,11 +200,13 @@ function Hero() {
 }
 
 function About() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const site = useCmsSite();
+  const projects = useCmsProjects(fallbackProjects);
   const aboutImage = site?.images?.about1 || ABOUT_IMAGE;
   const aboutImage2 = site?.images?.about2 || ABOUT_IMAGE_2;
   const values = ["v1", "v2", "v3", "v4"];
+  const valueImages = values.map((_, index) => projects[index]?.cover || fallbackProjects[index]?.cover || aboutImage);
 
   return (
     <section id="about" className="vd-section scroll-mt-28">
@@ -229,12 +231,22 @@ function About() {
           <div className="vd-values-grid">
             {values.map((value, index) => (
               <article key={value}>
+                <Image
+                  src={valueImages[index]}
+                  alt={t(`about.${value}t`)}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 22vw"
+                  className="vd-value-image object-cover"
+                />
+                <span className="vd-value-shade" aria-hidden="true" />
                 <div className="vd-value-icon">
                   <span>{String(index + 1).padStart(2, "0")}</span>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M5 19 19 5M10 5h9v9" /></svg>
                 </div>
-                <h3>{t(`about.${value}t`)}</h3>
-                <p>{t(`about.${value}d`)}</p>
+                <div className="vd-value-copy" lang={lang}>
+                  <h3>{t(`about.${value}t`)}</h3>
+                  <p>{t(`about.${value}d`)}</p>
+                </div>
               </article>
             ))}
           </div>
@@ -247,6 +259,88 @@ function About() {
         </div>
       </Container>
     </section>
+  );
+}
+
+type PartnerItem = {
+  id: string;
+  name: string;
+  type: "un" | "ingo" | "nngo" | "government" | "other";
+  logo?: string;
+  websiteUrl?: string;
+};
+
+const PARTNER_DOMAINS: Record<string, string> = {
+  FAO: "fao.org",
+  WFP: "wfp.org",
+  UNDP: "undp.org",
+  UNOPS: "unops.org",
+  UNHCR: "unhcr.org",
+  IOM: "iom.int",
+  UNICEF: "unicef.org",
+  "UN Women": "unwomen.org",
+  UNEP: "unep.org",
+  UNAMA: "unama.unmissions.org",
+  "Aga Khan Foundation": "akf.org",
+  "Mercy Corps": "mercycorps.org",
+  ACTED: "acted.org",
+  "Save the Children": "savethechildren.net",
+  GIZ: "giz.de",
+  "Concern Worldwide": "concern.net",
+  Welthungerhilfe: "welthungerhilfe.org",
+  NRC: "nrc.no",
+  "Islamic Relief": "islamic-relief.org",
+  "CARE International": "care-international.org",
+  DACAAR: "dacaar.org",
+  "AKDN Afghanistan": "akdn.org",
+  CHA: "cha-net.org",
+  ARAA: "araa.org.af",
+  "MAIL (Ministry of Agriculture)": "mail.gov.af",
+  NHLP: "mail.gov.af",
+  Afghanaid: "afghanaid.org.uk",
+};
+
+function partnerDomain(partner: PartnerItem) {
+  if (partner.websiteUrl) {
+    try {
+      return new URL(partner.websiteUrl).hostname.replace(/^www\./, "");
+    } catch {
+      // Fall back to the verified domain map for malformed CMS URLs.
+    }
+  }
+  return PARTNER_DOMAINS[partner.name] || "";
+}
+
+function PartnerLogo({ partner, duplicate = false }: { partner: PartnerItem; duplicate?: boolean }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const domain = partnerDomain(partner);
+  const logo = partner.logo || (domain ? `https://www.google.com/s2/favicons?domain_url=https://${domain}&sz=128` : "");
+  const initials = partner.name
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 4)
+    .toUpperCase();
+
+  const content = (
+    <>
+      <span className="vd-partner-logo-media">
+        {logo && !imageFailed ? (
+          // CMS logos can be hosted on domains outside Next Image's static allowlist.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logo} alt="" width="72" height="72" loading="lazy" onError={() => setImageFailed(true)} />
+        ) : (
+          <span aria-hidden="true">{initials}</span>
+        )}
+      </span>
+      <span className="vd-partner-logo-name">{partner.name}</span>
+    </>
+  );
+
+  return partner.websiteUrl && !duplicate ? (
+    <a className="vd-partner-logo-card" href={partner.websiteUrl} target="_blank" rel="noreferrer" aria-label={partner.name}>{content}</a>
+  ) : (
+    <div className="vd-partner-logo-card" aria-label={partner.name}>{content}</div>
   );
 }
 
@@ -293,18 +387,11 @@ function Services() {
 function Partners() {
   const { t } = useI18n();
   const site = useCmsSite();
-  const dynamic = site?.partners?.length ? site.partners : null;
-  const partnerGroups = dynamic ? {
-    un: dynamic.filter((partner) => partner.type === "un").map((partner) => partner.name),
-    ingo: dynamic.filter((partner) => partner.type === "ingo").map((partner) => partner.name),
-    nngo: dynamic.filter((partner) => ["nngo", "government", "other"].includes(partner.type)).map((partner) => partner.name),
-  } : fallbackPartners;
-  const groups = [
-    { key: "partners.un", items: partnerGroups.un },
-    { key: "partners.ingo", items: partnerGroups.ingo },
-    { key: "partners.nngo", items: partnerGroups.nngo },
-  ];
-  const testimonials = site?.testimonials?.length ? site.testimonials.map((item) => item.key) : ["t1", "t2", "t3"];
+  const fallbackItems: PartnerItem[] = (Object.entries(fallbackPartners) as Array<["un" | "ingo" | "nngo", string[]]>).flatMap(([type, names]) =>
+    names.map((name, index) => ({ id: `${type}-${index}`, name, type })),
+  );
+  const partners: PartnerItem[] = site?.partners?.length ? site.partners : fallbackItems;
+  const carouselItems = [...partners, ...partners];
 
   return (
     <section id="partners" className="vd-section vd-partners-section scroll-mt-28 text-white">
@@ -313,31 +400,45 @@ function Partners() {
           <span>04 / {t("partners.kicker")}</span>
           <div><Display inverse>{t("partners.title")}</Display><Lead className="!text-white/65">{t("partners.sub")}</Lead></div>
         </div>
-        <div className="vd-partners-grid">
-            {groups.map((group) => (
-              <div key={group.key} className="vd-partner-card">
-                <h3>{t(group.key)}</h3>
-                <ul>
-                  {group.items.slice(0, 8).map((item) => <li key={item}>{item}</li>)}
-                </ul>
+        <div className="vd-partner-carousel" aria-label={t("partners.kicker")}>
+          <div className="vd-partner-track">
+            {carouselItems.map((partner, index) => (
+              <div key={`${partner.id}-${index}`} className={index >= partners.length ? "is-duplicate" : undefined} aria-hidden={index >= partners.length || undefined}>
+                <PartnerLogo partner={partner} duplicate={index >= partners.length} />
               </div>
             ))}
-        </div>
-
-        <div className="vd-testimonials">
-          <div className="vd-testimonials-grid">
-            {testimonials.map((key, index) => (
-              <figure key={key} className="vd-testimonial-card">
-                <div><span>“</span><small>0{index + 1}</small></div>
-                <blockquote>{t(`${key}.q`)}</blockquote>
-                <figcaption>{t(`${key}.a`)}</figcaption>
-              </figure>
-            ))}
           </div>
-          <p className="vd-partner-note">{t("partners.note")}</p>
         </div>
+        <p className="vd-partner-note">{t("partners.note")}</p>
       </Container>
     </section>
+  );
+}
+
+function ScrollToTop() {
+  const { t } = useI18n();
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const updateVisibility = () => setVisible(window.scrollY > 640);
+    updateVisibility();
+    window.addEventListener("scroll", updateVisibility, { passive: true });
+    return () => window.removeEventListener("scroll", updateVisibility);
+  }, []);
+
+  return (
+    <button
+      type="button"
+      className={`vd-scroll-top ${visible ? "is-visible" : ""}`}
+      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      aria-label={`${t("nav.home")} ↑`}
+      title={`${t("nav.home")} ↑`}
+      tabIndex={visible ? 0 : -1}
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="m6 14 6-6 6 6" />
+      </svg>
+    </button>
   );
 }
 
@@ -453,6 +554,7 @@ function Site() {
       <SeoSync />
       <Header theme={theme} toggleTheme={toggle} />
       <main id="main-content"><Hero /><About /><Services /><Projects /><Partners /><Contact /></main>
+      <ScrollToTop />
       <Footer />
     </div>
   );
