@@ -314,6 +314,7 @@ function partnerDomain(partner: PartnerItem) {
 
 function PartnerLogo({ partner, duplicate = false }: { partner: PartnerItem; duplicate?: boolean }) {
   const [imageFailed, setImageFailed] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const domain = partnerDomain(partner);
   const logo = partner.logo || (domain ? `https://${domain}/favicon.ico` : "");
   const initials = partner.name
@@ -326,13 +327,12 @@ function PartnerLogo({ partner, duplicate = false }: { partner: PartnerItem; dup
   const content = (
     <>
       <span className="vd-partner-logo-media">
+        <span className={imageLoaded ? "is-hidden" : undefined} aria-hidden="true">{initials}</span>
         {logo && !imageFailed ? (
           // CMS logos can be hosted on domains outside Next Image's static allowlist.
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={logo} alt="" width="72" height="72" loading="lazy" onError={() => setImageFailed(true)} />
-        ) : (
-          <span aria-hidden="true">{initials}</span>
-        )}
+          <img className={imageLoaded ? "is-loaded" : undefined} src={logo} alt="" width="72" height="72" loading="lazy" onLoad={() => setImageLoaded(true)} onError={() => setImageFailed(true)} />
+        ) : null}
       </span>
       <span className="vd-partner-logo-name">{partner.name}</span>
     </>
