@@ -294,6 +294,7 @@ const PARTNER_DOMAINS: Record<string, string> = {
   DACAAR: "dacaar.org",
   "AKDN Afghanistan": "akdn.org",
   CHA: "cha-net.org",
+  AREA: "area-org.af",
   ARAA: "araa.org.af",
   "MAIL (Ministry of Agriculture)": "mail.gov.af",
   NHLP: "mail.gov.af",
@@ -314,7 +315,7 @@ function partnerDomain(partner: PartnerItem) {
 function PartnerLogo({ partner, duplicate = false }: { partner: PartnerItem; duplicate?: boolean }) {
   const [imageFailed, setImageFailed] = useState(false);
   const domain = partnerDomain(partner);
-  const logo = partner.logo || (domain ? `https://www.google.com/s2/favicons?domain_url=https://${domain}&sz=128` : "");
+  const logo = partner.logo || (domain ? `https://${domain}/favicon.ico` : "");
   const initials = partner.name
     .split(/\s+/)
     .map((part) => part[0])
